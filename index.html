@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AZFC Soccer Vote</title>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --accent-green: #22c55e;
+            --accent-red: #ef4444;
+            --accent-blue: #3b82f6;
+            --border-color: #334155;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-primary); display: flex; justify-content: center; padding: 16px; min-height: 100vh; }
+        .app-container { width: 100%; max-width: 480px; display: flex; flex-direction: column; gap: 16px; }
+        .header { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border-color); }
+        .title-area { display: flex; align-items: center; gap: 8px; font-size: 1.25rem; font-weight: 700; }
+        .admin-badge { background: var(--accent-blue); font-size: 0.7rem; padding: 2px 6px; border-radius: 4px; }
+        .card { background: var(--card-bg); border-radius: 12px; padding: 16px; border: 1px solid var(--border-color); }
+        .match-info { text-align: center; }
+        .match-label { color: var(--accent-blue); font-size: 0.85rem; font-weight: 600; letter-spacing: 1px; margin-bottom: 4px; }
+        .match-time { font-size: 1.35rem; font-weight: 700; margin-bottom: 4px; }
+        .match-location { color: var(--text-secondary); font-size: 0.9rem; }
+        .vote-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 16px; }
+        .vote-btn { border: none; border-radius: 10px; padding: 16px; font-size: 1rem; font-weight: 700; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; color: #fff; transition: transform 0.1s; }
+        .vote-btn:active { transform: scale(0.98); }
+        .btn-attend { background: #15803d; }
+        .btn-absent { background: #b91c1c; }
+        .section-title { font-size: 1rem; font-weight: 600; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; }
+        .list-group { display: flex; flex-direction: column; gap: 8px; }
+        .list-card { background: #0f172a; border-radius: 8px; padding: 12px; font-size: 0.9rem; }
+        .list-card-header { font-weight: 600; margin-bottom: 6px; display: flex; justify-content: space-between; }
+        .tag-green { color: var(--accent-green); }
+        .tag-red { color: var(--accent-red); }
+        .tag-gray { color: var(--text-secondary); }
+        .names-text { color: var(--text-secondary); font-size: 0.85rem; line-height: 1.4; word-break: keep-all; }
+        .comment-input-wrap { display: flex; gap: 8px; margin-top: 12px; }
+        .comment-input { flex: 1; background: #0f172a; border: 1px solid var(--border-color); border-radius: 6px; padding: 8px 12px; color: #fff; }
+        .comment-submit { background: var(--accent-blue); border: none; border-radius: 6px; padding: 8px 14px; color: #fff; font-weight: 600; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <div class="header">
+        <div class="title-area">⚽ AZFC Soccer Vote <span class="admin-badge">ADMIN</span></div>
+        <div id="g_id_onload"
+             data-client-id="77918384297-tbu1ip01281v3m4rqfpj19f8thhclk68.apps.googleusercontent.com"
+             data-auto_prompt="false"
+             data-callback="handleCredentialResponse">
+        </div>
+        <div class="g_id_signin" data-type="standard"></div>
+    </div>
+
+    <!-- Match Info Card -->
+    <div class="card match-info">
+        <div class="match-label">NEXT MATCH</div>
+        <div class="match-time">8월 22일 (토) 08:00 AM</div>
+        <div class="match-location">📍 중앙공원 인조잔디구장</div>
+        <div class="vote-buttons">
+            <button class="vote-btn btn-attend" onclick="castVote('attend')">
+                🟢 참석 <span>(Attend)</span>
+            </button>
+            <button class="vote-btn btn-absent" onclick="castVote('absent')">
+                🔴 불참 <span>(Absent)</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Live Attendance List -->
+    <div class="card">
+        <div class="section-title">📊 실시간 투표 현황</div>
+        <div class="list-group">
+            <div class="list-card">
+                <div class="list-card-header tag-green">🟢 참석자 (12명)</div>
+                <div class="names-text">서동현(Admin), 김철수, 이영희, Alex, Smith, John, David, 민수, 정훈, 성민, 준호, 재범</div>
+            </div>
+            <div class="list-card">
+                <div class="list-card-header tag-red">🔴 불참자 (3명)</div>
+                <div class="names-text">이민우, David, 박준형</div>
+            </div>
+            <div class="list-card">
+                <div class="list-card-header tag-gray">⚪ 미응답자 (4명)</div>
+                <div class="names-text">최재성, James, 박지성, Michael</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Match Comments -->
+    <div class="card">
+        <div class="section-title">💬 경기 댓글</div>
+        <div class="comment-input-wrap">
+            <input type="text" class="comment-input" placeholder="카풀 요청이나 준비물 관련 댓글을 남겨주세요...">
+            <button class="comment-submit">등록</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const GOOGLE_CLIENT_ID = "77918384297-tbu1ip01281v3m4rqfpj19f8thhclk68.apps.googleusercontent.com";
+
+    function handleCredentialResponse(response) {
+        console.log("Encoded JWT ID token: " + response.credential);
+    }
+    function castVote(type) {
+        alert(type === 'attend' ? '참석 투표가 완료되었습니다!' : '불참 투표가 완료되었습니다.');
+    }
+</script>
+
+</body>
+</html>
