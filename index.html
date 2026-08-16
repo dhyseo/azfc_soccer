@@ -20,8 +20,7 @@
         body { background-color: var(--bg-color); color: var(--text-primary); display: flex; justify-content: center; padding: 16px; min-height: 100vh; }
         .app-container { width: 100%; max-width: 480px; display: flex; flex-direction: column; gap: 16px; }
         .header { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border-color); }
-        .title-area { display: flex; align-items: center; gap: 8px; font-size: 1.25rem; font-weight: 700; }
-        .admin-badge { background: var(--accent-blue); font-size: 0.7rem; padding: 2px 6px; border-radius: 4px; }
+        .title-area { font-size: 1.25rem; font-weight: 700; display: flex; align-items: center; gap: 6px; }
         .card { background: var(--card-bg); border-radius: 12px; padding: 16px; border: 1px solid var(--border-color); }
         .match-info { text-align: center; }
         .match-label { color: var(--accent-blue); font-size: 0.85rem; font-weight: 600; letter-spacing: 1px; margin-bottom: 4px; }
@@ -32,42 +31,60 @@
         .vote-btn:active { transform: scale(0.98); }
         .btn-attend { background: #15803d; }
         .btn-absent { background: #b91c1c; }
-        .section-title { font-size: 1rem; font-weight: 600; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; }
+        .section-title { font-size: 1rem; font-weight: 600; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
         .list-group { display: flex; flex-direction: column; gap: 8px; }
         .list-card { background: #0f172a; border-radius: 8px; padding: 12px; font-size: 0.9rem; }
         .list-card-header { font-weight: 600; margin-bottom: 6px; display: flex; justify-content: space-between; }
         .tag-green { color: var(--accent-green); }
         .tag-red { color: var(--accent-red); }
-        .tag-gray { color: var(--text-secondary); }
         .names-text { color: var(--text-secondary); font-size: 0.85rem; line-height: 1.4; word-break: keep-all; }
-        .comment-input-wrap { display: flex; gap: 8px; margin-top: 12px; }
-        .comment-input { flex: 1; background: #0f172a; border: 1px solid var(--border-color); border-radius: 6px; padding: 8px 12px; color: #fff; }
-        .comment-submit { background: var(--accent-blue); border: none; border-radius: 6px; padding: 8px 14px; color: #fff; font-weight: 600; cursor: pointer; }
+        
+        /* Admin Toggle & Panel */
+        .admin-toggle-wrap { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; background: #0f172a; padding: 6px 12px; border-radius: 20px; border: 1px solid var(--border-color); cursor: pointer; color: #fff; }
+        .admin-panel { display: none; background: #1e293b; border: 1px solid var(--accent-blue); border-radius: 12px; padding: 16px; margin-bottom: 16px; }
+        .admin-panel.active { display: block; }
+        .admin-input-group { display: flex; gap: 8px; margin-bottom: 8px; }
+        .admin-input { flex: 1; background: #0f172a; border: 1px solid var(--border-color); border-radius: 6px; padding: 8px; color: #fff; font-size: 0.85rem; }
+        .btn-small { background: var(--accent-blue); border: none; border-radius: 6px; padding: 8px 12px; color: #fff; font-weight: 600; cursor: pointer; font-size: 0.85rem; }
+        .btn-danger { background: var(--accent-red); }
     </style>
 </head>
 <body>
 
 <div class="app-container">
     <div class="header">
-        <div class="title-area">⚽ AZFC Soccer Vote <span class="admin-badge">ADMIN</span></div>
-        <div id="g_id_onload"
-             data-client-id="77918384297-tbu1ip01281v3m4rqfpj19f8thhclk68.apps.googleusercontent.com"
-             data-auto_prompt="false"
-             data-callback="handleCredentialResponse">
+        <div class="title-area">⚽ AZFC Vote</div>
+        <button class="admin-toggle-wrap" onclick="toggleAdminMode()">
+            <span id="admin-status-icon">👮</span> <span id="admin-status-text">관리자 모드</span>
+        </button>
+    </div>
+
+    <!-- Admin Control Panel -->
+    <div id="admin-panel" class="admin-panel">
+        <div class="section-title" style="color: var(--accent-blue);">⚙️ 관리자 제어판</div>
+        <div style="font-size:0.8rem; color:var(--text-secondary); margin-bottom:12px;">경기 정보를 변경하거나 투표를 초기화할 수 있습니다.</div>
+        
+        <div class="admin-input-group">
+            <input type="text" id="edit-match-time" class="admin-input" placeholder="경기 시간 (예: 토요일 08:00 AM)">
         </div>
-        <div class="g_id_signin" data-type="standard"></div>
+        <div class="admin-input-group">
+            <input type="text" id="edit-match-loc" class="admin-input" placeholder="경기 장소 (예: 인조잔디구장)">
+            <button class="btn-small" onclick="updateMatchInfo()">수정</button>
+        </div>
+        <hr style="border-color:var(--border-color); margin: 12px 0;">
+        <button class="btn-small btn-danger" style="width:100%;" onclick="resetVotes()">⚠️ 투표 목록 전체 초기화</button>
     </div>
 
     <!-- Match Info Card -->
     <div class="card match-info">
         <div class="match-label">NEXT MATCH</div>
-        <div class="match-time">8월 22일 (토) 08:00 AM</div>
-        <div class="match-location">📍 중앙공원 인조잔디구장</div>
+        <div class="match-time" id="display-time">다음 경기 일정을 지정해주세요</div>
+        <div class="match-location" id="display-loc">📍 장소 미정</div>
         <div class="vote-buttons">
-            <button class="vote-btn btn-attend" onclick="castVote('attend')">
+            <button class="vote-btn btn-attend" onclick="userVote('attend')">
                 🟢 참석 <span>(Attend)</span>
             </button>
-            <button class="vote-btn btn-absent" onclick="castVote('absent')">
+            <button class="vote-btn btn-absent" onclick="userVote('absent')">
                 🔴 불참 <span>(Absent)</span>
             </button>
         </div>
@@ -78,26 +95,13 @@
         <div class="section-title">📊 실시간 투표 현황</div>
         <div class="list-group">
             <div class="list-card">
-                <div class="list-card-header tag-green">🟢 참석자 (12명)</div>
-                <div class="names-text">서동현(Admin), 김철수, 이영희, Alex, Smith, John, David, 민수, 정훈, 성민, 준호, 재범</div>
+                <div class="list-card-header tag-green">🟢 참석자 (<span id="count-attend">0</span>명)</div>
+                <div class="names-text" id="names-attend">없음</div>
             </div>
             <div class="list-card">
-                <div class="list-card-header tag-red">🔴 불참자 (3명)</div>
-                <div class="names-text">이민우, David, 박준형</div>
+                <div class="list-card-header tag-red">🔴 불참자 (<span id="count-absent">0</span>명)</div>
+                <div class="names-text" id="names-absent">없음</div>
             </div>
-            <div class="list-card">
-                <div class="list-card-header tag-gray">⚪ 미응답자 (4명)</div>
-                <div class="names-text">최재성, James, 박지성, Michael</div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Match Comments -->
-    <div class="card">
-        <div class="section-title">💬 경기 댓글</div>
-        <div class="comment-input-wrap">
-            <input type="text" class="comment-input" placeholder="카풀 요청이나 준비물 관련 댓글을 남겨주세요...">
-            <button class="comment-submit">등록</button>
         </div>
     </div>
 </div>
@@ -105,12 +109,84 @@
 <script>
     const GOOGLE_CLIENT_ID = "77918384297-tbu1ip01281v3m4rqfpj19f8thhclk68.apps.googleusercontent.com";
 
-    function handleCredentialResponse(response) {
-        console.log("Encoded JWT ID token: " + response.credential);
+    let isAdmin = false;
+    let matchData = JSON.parse(localStorage.getItem('azfc_match')) || {
+        time: "다음 경기 일정을 지정해주세요",
+        location: "📍 장소를 입력해주세요",
+        attending: [],
+        absent: []
+    };
+
+    function renderApp() {
+        document.getElementById('display-time').innerText = matchData.time;
+        document.getElementById('display-loc').innerText = matchData.location;
+        
+        document.getElementById('count-attend').innerText = matchData.attending.length;
+        document.getElementById('names-attend').innerText = matchData.attending.join(', ') || '없음';
+        
+        document.getElementById('count-absent').innerText = matchData.absent.length;
+        document.getElementById('names-absent').innerText = matchData.absent.join(', ') || '없음';
     }
-    function castVote(type) {
-        alert(type === 'attend' ? '참석 투표가 완료되었습니다!' : '불참 투표가 완료되었습니다.');
+
+    function toggleAdminMode() {
+        if (!isAdmin) {
+            let password = prompt("관리자 비밀번호를 입력하세요:", "");
+            if (password === "azfc0000") {
+                isAdmin = true;
+                document.getElementById('admin-panel').classList.add('active');
+                document.getElementById('admin-status-text').innerText = "관리자 ON";
+                alert("관리자 모드가 활성화되었습니다.");
+            } else if (password !== null) {
+                alert("비밀번호가 올바르지 않습니다.");
+            }
+        } else {
+            isAdmin = false;
+            document.getElementById('admin-panel').classList.remove('active');
+            document.getElementById('admin-status-text').innerText = "관리자 모드";
+        }
     }
+
+    function updateMatchInfo() {
+        let newTime = document.getElementById('edit-match-time').value;
+        let newLoc = document.getElementById('edit-match-loc').value;
+        if (newTime) matchData.time = newTime;
+        if (newLoc) matchData.location = "📍 " + newLoc;
+        
+        localStorage.setItem('azfc_match', JSON.stringify(matchData));
+        renderApp();
+        alert("경기 정보가 수정되었습니다.");
+    }
+
+    function userVote(type) {
+        let name = prompt("투표하시는 성함을 입력해주세요:", "");
+        if (!name || name.trim() === "") return;
+        name = name.trim();
+
+        matchData.attending = matchData.attending.filter(n => n !== name);
+        matchData.absent = matchData.absent.filter(n => n !== name);
+
+        if (type === 'attend') {
+            matchData.attending.push(name);
+        } else {
+            matchData.absent.push(name);
+        }
+
+        localStorage.setItem('azfc_match', JSON.stringify(matchData));
+        renderApp();
+        alert(name + "님의 투표가 반영되었습니다.");
+    }
+
+    function resetVotes() {
+        if (confirm("정말로 모든 참석/불참 투표 데이터를 초기화하시겠습니까?")) {
+            matchData.attending = [];
+            matchData.absent = [];
+            localStorage.setItem('azfc_match', JSON.stringify(matchData));
+            renderApp();
+            alert("투표 데이터가 초기화되었습니다.");
+        }
+    }
+
+    renderApp();
 </script>
 
 </body>
