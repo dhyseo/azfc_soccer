@@ -190,7 +190,7 @@
       display: flex;
       flex-direction: column;
       gap: 8px;
-      max-height: 220px;
+      max-height: 260px;
       overflow-y: auto;
     }
 
@@ -205,13 +205,49 @@
     .comment-header {
       display: flex;
       justify-content: space-between;
-      margin-bottom: 4px;
+      align-items: center;
+      margin-bottom: 6px;
       font-size: 11px;
     }
 
     .comment-author { font-weight: 700; color: var(--primary-color); }
+    .comment-meta { display: flex; align-items: center; gap: 8px; }
     .comment-time { color: #64748b; }
+    
+    .comment-actions button {
+      background: none;
+      border: none;
+      color: var(--text-sub);
+      font-size: 11px;
+      cursor: pointer;
+      padding: 0 2px;
+    }
+    .comment-actions button:hover { color: #fff; }
+    .comment-actions button.btn-del:hover { color: var(--danger-color); }
+
     .comment-text { color: #cbd5e1; word-break: break-word; }
+
+    .comment-edit-box {
+      display: flex;
+      gap: 6px;
+      margin-top: 6px;
+    }
+    .comment-edit-box input {
+      flex: 1;
+      background: #1e293b;
+      border: 1px solid var(--card-border);
+      color: #fff;
+      padding: 6px 8px;
+      border-radius: 6px;
+      font-size: 12px;
+    }
+    .comment-edit-box button {
+      padding: 6px 10px;
+      font-size: 11px;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+    }
 
     .hidden { display: none !important; }
   </style>
@@ -228,7 +264,7 @@
       </div>
 
       <div id="logged-in-view" class="user-info hidden">
-        <span>Welcome, <span id="user-display-name" class="user-name"></span>!</span>
+        <span>Welcome, <span id="user-display-name" class="user-name">Loading...</span>!</span>
         <button class="btn-logout" onclick="logout()">Sign Out</button>
       </div>
     </div>
@@ -309,8 +345,7 @@
         document.getElementById("logged-out-view").classList.add("hidden");
         document.getElementById("logged-in-view").classList.remove("hidden");
         
-        updateUserHeaderName();
-        fetchData();
+        fetchData(); // 데이터 재요청을 통해 memberMap 수신 후 이름 표시
       } catch (e) {
         alert("Authentication failed.");
       }
@@ -335,7 +370,7 @@
 
     function updateUserHeaderName() {
       if (!currentUserEmail) return;
-      const displayName = memberMap[currentUserEmail] || (currentUserEmail + " (Unregistered)");
+      const displayName = memberMap[currentUserEmail] || currentUserEmail;
       document.getElementById("user-display-name").textContent = displayName;
     }
 
@@ -368,22 +403,80 @@
       commentsArray.forEach(item => {
         const card = document.createElement("div");
         card.className = "comment-item";
-        const authorName = memberMap[item.email?.toLowerCase().trim()] || item.email || "Anonymous";
-        
+        card.id = "comment-card-" + item.id;
+
+        const emailClean = (item.email || "").toLowerCase().trim();
+        const authorName = memberMap[emailClean] || item.email || "Anonymous";
+        const isMyComment = currentUserEmail && (emailClean === currentUserEmail);
+
+        let actionsHtml = "";
+        if (isMyComment && item.id) {
+          actionsHtml = `
+            <span class="comment-actions">
+              <button onclick="enableEditComment('${item.id}', '${escapeHtml(item.text)}')">Edit</button>
+              <button class="btn-del" onclick="deleteComment('${item.id}')">Delete</button>
+            </span>
+          `;
+        }
+
         card.innerHTML = `
           <div class="comment-header">
             <span class="comment-author">${escapeHtml(authorName)}</span>
-            <span class="comment-time">${escapeHtml(item.timestamp || '')}</span>
+            <div class="comment-meta">
+              <span class="comment-time">${escapeHtml(item.timestamp || '')}</span>
+              ${actionsHtml}
+            </div>
           </div>
-          <div class="comment-text">${escapeHtml(item.text)}</div>
+          <div class="comment-text" id="comment-text-${item.id}">${escapeHtml(item.text)}</div>
         `;
         container.appendChild(card);
       });
     }
 
+    function enableEditComment(id, oldText) {
+      const textElement = document.getElementById("comment-text-" + id);
+      if (!textElement) return;
+
+      textElement.innerHTML = `
+        <div class="comment-edit-box">
+          <input type="text" id="edit-input-${id}" value="${escapeHtml(oldText)}">
+          <button style="background:var(--primary-color); color:#fff;" onclick="saveEditComment('${id}')">Save</button>
+          <button style="background:#334155; color:#fff;" onclick="fetchData()">Cancel</button>
+        </div>
+      `;
+    }
+
+    function saveEditComment(id) {
+      const input = document.getElementById("edit-input-" + id);
+      if (!input) return;
+      const newText = input.value.trim();
+
+      if (!newText) {
+        alert("Please enter a comment.");
+        return;
+      }
+
+      sendRequest({
+        action: "editComment",
+        email: currentUserEmail,
+        commentId: id,
+        comment: newText
+      });
+    }
+
+    function deleteComment(id) {
+      if (!confirm("Are you sure you want to delete this comment?")) return;
+
+      sendRequest({
+        action: "deleteComment",
+        email: currentUserEmail,
+        commentId: id
+      });
+    }
+
     function escapeHtml(text) {
       if (!text) return "";
-      return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+      return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
     }
 
     function fetchData() {
