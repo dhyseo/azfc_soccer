@@ -159,7 +159,7 @@
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 12px;
-      margin-bottom: 24px;
+      margin-bottom: 28px;
     }
 
     .result-box {
@@ -204,6 +204,93 @@
     }
 
     .empty-msg { color: #666; font-size: 13px; padding: 8px 0; }
+
+    /* Comment Section Styles */
+    .comments-section {
+      background-color: #242424;
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 20px;
+      margin-bottom: 24px;
+    }
+
+    .comments-section h3 {
+      margin: 0 0 14px 0;
+      font-size: 16px;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .comment-form {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .comment-form input {
+      flex: 1;
+      background-color: #181818;
+      border: 1px solid #333;
+      color: #fff;
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 14px;
+      outline: none;
+    }
+    .comment-form input:focus { border-color: var(--primary-color); }
+
+    .btn-comment {
+      background-color: var(--primary-color);
+      color: white;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 14px;
+      white-space: nowrap;
+    }
+    .btn-comment:hover { opacity: 0.9; }
+
+    .comments-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-height: 250px;
+      overflow-y: auto;
+    }
+
+    .comment-item {
+      background-color: #1a1a1a;
+      border: 1px solid #333;
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 14px;
+    }
+
+    .comment-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 4px;
+      font-size: 12px;
+    }
+
+    .comment-author {
+      font-weight: 700;
+      color: var(--primary-color);
+    }
+
+    .comment-time {
+      color: #666;
+    }
+
+    .comment-text {
+      color: #ddd;
+      word-break: break-word;
+      line-height: 1.4;
+    }
 
     .footer-section {
       display: flex;
@@ -298,7 +385,7 @@
       <h1>⚽ AZFC Match Schedule & RSVP</h1>
       
       <div id="logged-out-view">
-        <p style="color: var(--text-sub); margin-bottom: 16px;">Please sign in with Google to vote.</p>
+        <p style="color: var(--text-sub); margin-bottom: 16px;">Please sign in with Google to vote and comment.</p>
         <div id="google-login-btn" style="display: flex; justify-content: center;"></div>
       </div>
 
@@ -334,6 +421,18 @@
       <div class="result-box unvoted-box">
         <h3>Pending (<span id="unvoted-count">0</span>)</h3>
         <div id="unvoted-list" class="member-list"><div class="empty-msg">-</div></div>
+      </div>
+    </div>
+
+    <!-- 댓글 영역 추가 -->
+    <div class="comments-section">
+      <h3>💬 Match Discussion</h3>
+      <div class="comment-form">
+        <input type="text" id="comment-input" placeholder="Leave a comment (e.g., I might be 10 mins late)" onkeypress="handleCommentKeyPress(event)">
+        <button class="btn-comment" onclick="submitComment()">Post</button>
+      </div>
+      <div id="comments-list" class="comments-list">
+        <div class="empty-msg" style="text-align: center;">No comments yet.</div>
       </div>
     </div>
 
@@ -437,6 +536,14 @@
       }
     }
 
+    function logout() {
+      currentUserEmail = "";
+      document.getElementById("logged-out-view").classList.remove("hidden");
+      document.getElementById("logged-in-view").classList.add("hidden");
+      document.getElementById("btn-attend").classList.remove("active");
+      document.getElementById("btn-absent").classList.remove("active");
+    }
+
     function parseJwt(token) {
       const base64Url = token.split('.')[1];
       const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
@@ -470,6 +577,40 @@
         itemDiv.textContent = name;
         container.appendChild(itemDiv);
       });
+    }
+
+    function renderComments(commentsArray) {
+      const container = document.getElementById("comments-list");
+      container.innerHTML = "";
+
+      if (!commentsArray || commentsArray.length === 0) {
+        const emptyDiv = document.createElement("div");
+        emptyDiv.className = "empty-msg";
+        emptyDiv.style.textAlign = "center";
+        emptyDiv.textContent = "No comments yet.";
+        container.appendChild(emptyDiv);
+        return;
+      }
+
+      commentsArray.forEach(item => {
+        const card = document.createElement("div");
+        card.className = "comment-item";
+        const authorName = memberMap[item.email?.toLowerCase().trim()] || item.email || "Anonymous";
+        
+        card.innerHTML = `
+          <div class="comment-header">
+            <span class="comment-author">${escapeHtml(authorName)}</span>
+            <span class="comment-time">${escapeHtml(item.timestamp || '')}</span>
+          </div>
+          <div class="comment-text">${escapeHtml(item.text)}</div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function escapeHtml(text) {
+      if (!text) return "";
+      return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
     }
 
     function fetchData() {
@@ -514,6 +655,9 @@
             document.getElementById("btn-attend").classList.toggle("active", attendEmails.includes(currentUserEmail));
             document.getElementById("btn-absent").classList.toggle("active", absenteeEmails.includes(currentUserEmail));
           }
+
+          // 댓글 로드
+          renderComments(data.comments || []);
         })
         .catch(err => console.error("Failed to load data:", err));
     }
@@ -525,6 +669,35 @@
       }
 
       sendRequest({ action: "vote", email: currentUserEmail, status: status });
+    }
+
+    function handleCommentKeyPress(event) {
+      if (event.key === 'Enter') {
+        submitComment();
+      }
+    }
+
+    function submitComment() {
+      if (!currentUserEmail) {
+        alert("Sign in required.");
+        return;
+      }
+
+      const input = document.getElementById("comment-input");
+      const text = input.value.trim();
+
+      if (!text) {
+        alert("Please enter a comment.");
+        return;
+      }
+
+      sendRequest({
+        action: "addComment",
+        email: currentUserEmail,
+        text: text
+      }, () => {
+        input.value = "";
+      });
     }
 
     function openAdminAuthModal() {
@@ -607,7 +780,6 @@
         .then(res => res.json())
         .then(res => {
           if (res.success) {
-            alert("Updated successfully.");
             fetchData();
             if (onSuccess) onSuccess();
           } else {
