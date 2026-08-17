@@ -19,7 +19,6 @@
       --danger-color: #ef4444;
       --danger-bg: rgba(239, 68, 68, 0.12);
       --warning-color: #f59e0b;
-      --warning-bg: rgba(245, 158, 11, 0.12);
     }
 
     * { box-sizing: border-box; }
@@ -43,7 +42,6 @@
       padding: 28px 20px;
       border-radius: 20px;
       box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
-      position: relative;
     }
 
     .header-section {
@@ -53,12 +51,7 @@
       border-bottom: 1px solid var(--card-border);
     }
 
-    h1 {
-      font-size: 24px;
-      font-weight: 800;
-      margin: 0 0 16px 0;
-      letter-spacing: -0.5px;
-    }
+    h1 { font-size: 24px; font-weight: 800; margin: 0 0 16px 0; }
 
     .user-info {
       font-size: 14px;
@@ -67,13 +60,9 @@
       align-items: center;
       justify-content: center;
       gap: 10px;
-      flex-wrap: wrap;
     }
 
-    .user-name {
-      color: var(--primary-color);
-      font-weight: 700;
-    }
+    .user-name { color: var(--primary-color); font-weight: 700; }
 
     .btn-logout {
       background-color: #334155;
@@ -83,9 +72,7 @@
       border: none;
       border-radius: 8px;
       cursor: pointer;
-      transition: all 0.2s;
     }
-    .btn-logout:hover { background-color: #475569; color: #fff; }
 
     .info-card {
       background-color: rgba(15, 23, 42, 0.6);
@@ -95,26 +82,10 @@
       margin-bottom: 24px;
     }
 
-    .info-item {
-      margin: 8px 0;
-      font-size: 15px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .info-item:first-child { margin-top: 0; }
-    .info-item:last-child { margin-bottom: 0; }
+    .info-item { margin: 8px 0; font-size: 15px; }
+    .info-item strong { color: var(--primary-color); }
 
-    .info-item strong {
-      color: var(--primary-color);
-      min-width: 100px;
-    }
-
-    .vote-buttons {
-      display: flex;
-      gap: 12px;
-      margin-bottom: 28px;
-    }
+    .vote-buttons { display: flex; gap: 12px; margin-bottom: 28px; }
 
     .btn-vote {
       flex: 1;
@@ -125,10 +96,6 @@
       cursor: pointer;
       border: 2px solid transparent;
       transition: all 0.2s ease;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
     }
 
     .btn-attend {
@@ -139,8 +106,6 @@
     .btn-attend:hover, .btn-attend.active {
       background-color: var(--success-color);
       color: #ffffff;
-      border-color: var(--success-color);
-      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
     }
 
     .btn-absent {
@@ -151,8 +116,6 @@
     .btn-absent:hover, .btn-absent.active {
       background-color: var(--danger-color);
       color: #ffffff;
-      border-color: var(--danger-color);
-      box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
     }
 
     .results-section {
@@ -170,27 +133,18 @@
       text-align: center;
     }
 
-    .result-box h3 {
-      margin: 0 0 10px 0;
-      font-size: 13px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
+    .result-box h3 { margin: 0 0 10px 0; font-size: 13px; font-weight: 700; }
     .result-box.attend-box h3 { color: var(--success-color); }
     .result-box.absent-box h3 { color: var(--danger-color); }
     .result-box.unvoted-box h3 { color: var(--warning-color); }
 
     .member-list {
       font-size: 13px;
-      color: var(--text-sub);
       max-height: 200px;
       overflow-y: auto;
       display: flex;
       flex-direction: column;
       gap: 6px;
-      padding: 0 2px;
     }
 
     .member-item {
@@ -198,14 +152,11 @@
       padding: 8px;
       border-radius: 6px;
       border: 1px solid var(--card-border);
-      text-align: center;
-      word-break: break-all;
-      color: var(--text-main);
     }
 
-    .empty-msg { color: #64748b; font-size: 13px; padding: 6px 0; }
+    .empty-msg { color: #64748b; font-size: 13px; }
 
-    /* Discussion Section */
+    /* Comments */
     .comments-section {
       background-color: rgba(15, 23, 42, 0.5);
       border: 1px solid var(--card-border);
@@ -214,18 +165,7 @@
       margin-bottom: 20px;
     }
 
-    .comments-section h3 {
-      margin: 0 0 12px 0;
-      font-size: 15px;
-      color: var(--text-main);
-    }
-
-    .comment-form {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 14px;
-    }
-
+    .comment-form { display: flex; gap: 8px; margin-bottom: 14px; }
     .comment-form input {
       flex: 1;
       background-color: #0f172a;
@@ -233,10 +173,8 @@
       color: #fff;
       padding: 10px 12px;
       border-radius: 8px;
-      font-size: 14px;
       outline: none;
     }
-    .comment-form input:focus { border-color: var(--primary-color); }
 
     .btn-comment {
       background-color: var(--primary-color);
@@ -246,9 +184,7 @@
       border-radius: 8px;
       font-weight: 600;
       cursor: pointer;
-      font-size: 14px;
     }
-    .btn-comment:hover { background-color: var(--primary-hover); }
 
     .comments-list {
       display: flex;
@@ -273,97 +209,11 @@
       font-size: 11px;
     }
 
-    .comment-author {
-      font-weight: 700;
-      color: var(--primary-color);
-    }
-
+    .comment-author { font-weight: 700; color: var(--primary-color); }
     .comment-time { color: #64748b; }
-    .comment-text { color: #cbd5e1; word-break: break-word; line-height: 1.4; }
-
-    .footer-section {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-top: 12px;
-      padding-top: 12px;
-      border-top: 1px solid var(--card-border);
-    }
-
-    .footer-link {
-      color: var(--text-sub);
-      font-size: 13px;
-      text-decoration: none;
-      cursor: pointer;
-      transition: color 0.2s;
-    }
-    .footer-link:hover { color: var(--text-main); }
-
-    /* Modals */
-    .modal-overlay {
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0, 0, 0, 0.75);
-      backdrop-filter: blur(4px);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      z-index: 1000;
-      padding: 16px;
-    }
-
-    .modal-content {
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 16px;
-      width: 100%;
-      max-width: 440px;
-      padding: 20px;
-      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
-      max-height: 80vh;
-      overflow-y: auto;
-    }
-
-    .modal-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 16px;
-      padding-bottom: 10px;
-      border-bottom: 1px solid var(--card-border);
-    }
-
-    .modal-header h2 { margin: 0; font-size: 16px; color: var(--text-main); }
-
-    .btn-close {
-      background: none; border: none; color: var(--text-sub); font-size: 18px; cursor: pointer;
-    }
-    .btn-close:hover { color: #fff; }
-
-    .admin-form { display: flex; flex-direction: column; gap: 12px; }
-    .admin-form input {
-      background-color: #0f172a; border: 1px solid var(--card-border); color: #fff; padding: 10px 12px; border-radius: 8px; font-size: 14px; outline: none;
-    }
-    .admin-form input:focus { border-color: var(--primary-color); }
-
-    .btn-update { background-color: var(--primary-color); color: white; border: none; padding: 10px; border-radius: 8px; font-weight: 600; cursor: pointer; }
-    .btn-reset { background-color: transparent; color: var(--danger-color); border: 1px solid var(--danger-color); padding: 10px; border-radius: 8px; font-weight: 600; cursor: pointer; }
-
-    .history-card {
-      background-color: #0f172a;
-      border: 1px solid var(--card-border);
-      border-radius: 8px;
-      padding: 12px;
-      margin-bottom: 10px;
-    }
-    .history-date { font-weight: 700; color: var(--primary-color); font-size: 13px; }
-    .history-meta { font-size: 12px; color: var(--text-sub); margin-top: 4px; }
+    .comment-text { color: #cbd5e1; word-break: break-word; }
 
     .hidden { display: none !important; }
-
-    @media (max-width: 480px) {
-      .results-section { grid-template-columns: 1fr; }
-    }
   </style>
 </head>
 <body>
@@ -389,12 +239,8 @@
     </div>
 
     <div class="vote-buttons">
-      <button id="btn-attend" class="btn-vote btn-attend" onclick="submitVote('참석')">
-        <span>Attending</span>
-      </button>
-      <button id="btn-absent" class="btn-vote btn-absent" onclick="submitVote('불참')">
-        <span>Not Attending</span>
-      </button>
+      <button id="btn-attend" class="btn-vote btn-attend" onclick="submitVote('참석')">Attending</button>
+      <button id="btn-absent" class="btn-vote btn-absent" onclick="submitVote('불참')">Not Attending</button>
     </div>
 
     <div class="results-section">
@@ -413,65 +259,13 @@
     </div>
 
     <div class="comments-section">
-      <h3>💬 Match Discussion</h3>
+      <h3 style="margin:0 0 12px 0; font-size:15px;">💬 Match Discussion</h3>
       <div class="comment-form">
         <input type="text" id="comment-input" placeholder="Leave a comment..." onkeypress="handleCommentKeyPress(event)">
         <button class="btn-comment" id="btn-comment-submit" onclick="submitComment()">Post</button>
       </div>
       <div id="comments-list" class="comments-list">
         <div class="empty-msg" style="text-align: center;">No comments yet.</div>
-      </div>
-    </div>
-
-    <div class="footer-section">
-      <a class="footer-link" onclick="openHistoryModal()">📜 Match History</a>
-      <a class="footer-link" onclick="openAdminAuthModal()">⚙️ Admin Mode</a>
-    </div>
-  </div>
-
-  <!-- Admin Auth Modal -->
-  <div id="admin-auth-modal" class="modal-overlay hidden">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h2>🔒 Admin Access</h2>
-        <button class="btn-close" onclick="closeAdminModals()">✕</button>
-      </div>
-      <div class="admin-form">
-        <input type="password" id="auth-pw-input" placeholder="Enter Admin Password">
-        <button class="btn-update" onclick="verifyAdminPassword()">Login to Admin Console</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Admin Control Panel Modal -->
-  <div id="admin-panel-modal" class="modal-overlay hidden">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h2>⚙️ Admin Control Panel</h2>
-        <button class="btn-close" onclick="closeAdminModals()">✕</button>
-      </div>
-      <div class="admin-form">
-        <label style="font-size:12px; color:var(--text-sub);">Schedule Settings</label>
-        <input type="text" id="new-match-time" placeholder="Schedule" value="Sun, Aug 23, 2026 @ 7:30 AM">
-        <input type="text" id="new-match-loc" placeholder="Location" value="Monta Vista High School">
-        <button class="btn-update" onclick="updateMatchInfo()">Update Schedule</button>
-        
-        <hr style="border:0; border-top:1px solid var(--card-border); margin:4px 0;">
-        <label style="font-size:12px; color:var(--text-sub);">Data Management</label>
-        <button class="btn-reset" onclick="resetVotes()">Reset All Votes</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Match History Modal -->
-  <div id="history-modal" class="modal-overlay hidden">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h2>📜 Past Match Records</h2>
-        <button class="btn-close" onclick="closeHistoryModal()">✕</button>
-      </div>
-      <div id="history-container">
-        <p style="color:var(--text-sub); text-align:center;">Loading past records...</p>
       </div>
     </div>
   </div>
@@ -482,7 +276,6 @@
 
     let currentUserEmail = "";
     let memberMap = {};
-    let authenticatedAdminPassword = "";
 
     window.onload = function() {
       initGoogleLogin();
@@ -519,7 +312,7 @@
         updateUserHeaderName();
         fetchData();
       } catch (e) {
-        alert("An error occurred during authentication.");
+        alert("Authentication failed.");
       }
     }
 
@@ -551,10 +344,7 @@
       container.innerHTML = "";
 
       if (!namesArray || namesArray.length === 0) {
-        const emptyDiv = document.createElement("div");
-        emptyDiv.className = "empty-msg";
-        emptyDiv.textContent = "-";
-        container.appendChild(emptyDiv);
+        container.innerHTML = '<div class="empty-msg">-</div>';
         return;
       }
 
@@ -571,11 +361,7 @@
       container.innerHTML = "";
 
       if (!commentsArray || commentsArray.length === 0) {
-        const emptyDiv = document.createElement("div");
-        emptyDiv.className = "empty-msg";
-        emptyDiv.style.textAlign = "center";
-        emptyDiv.textContent = "No comments yet.";
-        container.appendChild(emptyDiv);
+        container.innerHTML = '<div class="empty-msg" style="text-align: center;">No comments yet.</div>';
         return;
       }
 
@@ -645,7 +431,7 @@
 
           renderComments(data.comments || []);
         })
-        .catch(err => console.error("Failed to load data:", err));
+        .catch(err => console.error("Data load failed:", err));
     }
 
     function submitVote(status) {
@@ -653,17 +439,13 @@
         alert("Sign in required.");
         return;
       }
-
       sendRequest({ action: "vote", email: currentUserEmail, status: status });
     }
 
     function handleCommentKeyPress(event) {
-      if (event.key === 'Enter') {
-        submitComment();
-      }
+      if (event.key === 'Enter') submitComment();
     }
 
-    // [수정] comment 키로 정교하게 전달
     function submitComment() {
       if (!currentUserEmail) {
         alert("Sign in required.");
@@ -691,79 +473,6 @@
       });
     }
 
-    function openAdminAuthModal() {
-      document.getElementById("auth-pw-input").value = "";
-      document.getElementById("admin-auth-modal").classList.remove("hidden");
-    }
-
-    function verifyAdminPassword() {
-      const inputPw = document.getElementById("auth-pw-input").value;
-      if (!inputPw) { alert("Please enter the password."); return; }
-      
-      authenticatedAdminPassword = inputPw;
-      document.getElementById("admin-auth-modal").classList.add("hidden");
-      document.getElementById("admin-panel-modal").classList.remove("hidden");
-    }
-
-    function closeAdminModals() {
-      document.getElementById("admin-auth-modal").classList.add("hidden");
-      document.getElementById("admin-panel-modal").classList.add("hidden");
-    }
-
-    function updateMatchInfo() {
-      const newTime = document.getElementById("new-match-time").value;
-      const newLoc = document.getElementById("new-match-loc").value;
-
-      if (!newTime || !newLoc) { alert("Please enter both schedule and location."); return; }
-
-      sendRequest({
-        action: "updateInfo",
-        password: authenticatedAdminPassword,
-        time: newTime,
-        location: newLoc
-      }, () => closeAdminModals());
-    }
-
-    function resetVotes() {
-      if (confirm("Are you sure you want to reset all votes?")) {
-        sendRequest({
-          action: "resetVotes",
-          password: authenticatedAdminPassword
-        }, () => closeAdminModals());
-      }
-    }
-
-    function openHistoryModal() {
-      document.getElementById("history-modal").classList.remove("hidden");
-      const container = document.getElementById("history-container");
-      container.innerHTML = "<p style='color:var(--text-sub); text-align:center;'>Loading...</p>";
-
-      fetch(SCRIPT_URL + "?action=getHistory&t=" + new Date().getTime())
-        .then(res => res.json())
-        .then(res => {
-          if (res.success && res.history && res.history.length > 0) {
-            container.innerHTML = "";
-            res.history.forEach(item => {
-              const card = document.createElement("div");
-              card.className = "history-card";
-              card.innerHTML = `
-                <div class="history-date">${item.matchTime || 'N/A'}</div>
-                <div class="history-meta">📍 ${item.location || 'Monta Vista High School'}</div>
-                <div class="history-meta">⚽ Attending: ${item.attendCount} | Not Attending: ${item.absentCount}</div>
-              `;
-              container.appendChild(card);
-            });
-          } else {
-            container.innerHTML = "<p style='color:var(--text-sub); text-align:center;'>No past records found.</p>";
-          }
-        });
-    }
-
-    function closeHistoryModal() {
-      document.getElementById("history-modal").classList.add("hidden");
-    }
-
-    // [수정] fetch 설정에 mode, redirect 옵션 강화
     function sendRequest(params, onSuccess) {
       params.t = new Date().getTime();
       const queryString = new URLSearchParams(params).toString();
@@ -784,7 +493,7 @@
         })
         .catch(err => {
           console.error(err);
-          alert("Request failed. Please check network connectivity.");
+          alert("Request failed. Network error.");
         });
     }
   </script>
