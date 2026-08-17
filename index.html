@@ -157,7 +157,6 @@
 
     .empty-msg { color: #64748b; font-size: 13px; }
 
-    /* Comments */
     .comments-section {
       background-color: rgba(15, 23, 42, 0.5);
       border: 1px solid var(--card-border);
@@ -396,7 +395,7 @@
         nameElem.textContent = currentUserEmail;
         const totalMembers = Object.keys(memberMap).length;
         if (totalMembers === 0) {
-          debugElem.textContent = "(시트 명단 0개 읽힘 - 백엔드 확인 필요)";
+          debugElem.textContent = "(시트 명단 0개 읽힘)";
         } else {
           debugElem.textContent = `(시트에 이메일 미등록: ${currentUserEmail})`;
         }
@@ -430,24 +429,23 @@
         return;
       }
 
-      latestComments.forEach(item => {
+      latestComments.forEach((item, index) => {
         const card = document.createElement("div");
         card.className = "comment-item";
 
         const emailClean = (item.email || "").toLowerCase().trim();
         const authorName = memberMap[emailClean] || item.email || "Anonymous";
-        
-        // 내 댓글 판별: 완벽 일치 또는 로그인된 이메일 기준
         const isMyComment = currentUserEmail && (emailClean === currentUserEmail);
 
+        // ID 매칭 보완: 서버에서 전달받은 ID가 없는 옛 댓글도 안전하게 ID 부여
+        const commentId = item.id || ("c_legacy_" + index);
+
         let actionsHtml = "";
-        // ID가 존재하거나, 로그인한 사용자의 댓글이면 버튼 무조건 생성
         if (isMyComment) {
-          const commentId = item.id || ("legacy_" + Math.random().toString(36).substr(2, 5));
-          const safeText = escapeHtml(item.text).replace(/'/g, "\\'");
+          const rawText = item.text || "";
           actionsHtml = `
             <span class="comment-actions">
-              <button onclick="enableEditComment('${commentId}', '${safeText}')">Edit</button>
+              <button onclick="enableEditComment('${commentId}')">Edit</button>
               <button class="btn-del" onclick="deleteComment('${commentId}')">Delete</button>
             </span>
           `;
@@ -461,19 +459,21 @@
               ${actionsHtml}
             </div>
           </div>
-          <div class="comment-text" id="comment-text-${item.id}">${escapeHtml(item.text)}</div>
+          <div class="comment-text" id="comment-text-${commentId}">${escapeHtml(item.text)}</div>
         `;
         container.appendChild(card);
       });
     }
 
-    function enableEditComment(id, oldText) {
+    function enableEditComment(id) {
       const textElement = document.getElementById("comment-text-" + id);
       if (!textElement) return;
 
+      const currentText = textElement.textContent || "";
+
       textElement.innerHTML = `
         <div class="comment-edit-box">
-          <input type="text" id="edit-input-${id}" value="${oldText}">
+          <input type="text" id="edit-input-${id}" value="${escapeHtml(currentText)}">
           <button style="background:var(--primary-color); color:#fff;" onclick="saveEditComment('${id}')">Save</button>
           <button style="background:#334155; color:#fff;" onclick="renderComments(latestComments)">Cancel</button>
         </div>
