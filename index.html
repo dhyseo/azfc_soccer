@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AZFC Match Schedule & Attendance Vote</title>
+  <title>AZFC Match Schedule & RSVP</title>
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <style>
     :root {
@@ -41,6 +41,7 @@
       padding: 32px 24px;
       border-radius: 20px;
       box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      position: relative;
     }
 
     .header-section {
@@ -104,7 +105,7 @@
 
     .info-item strong {
       color: var(--primary-color);
-      min-width: 80px;
+      min-width: 100px;
     }
 
     /* Voting Buttons */
@@ -161,7 +162,7 @@
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 12px;
-      margin-bottom: 32px;
+      margin-bottom: 24px;
     }
 
     .result-box {
@@ -211,25 +212,75 @@
       padding: 8px 0;
     }
 
-    /* Admin Section */
-    .admin-section {
-      padding-top: 24px;
-      border-top: 1px dashed var(--card-border);
+    /* Footer / Admin Entry */
+    .footer-section {
+      text-align: center;
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid var(--card-border);
     }
 
-    .admin-section h3 {
-      font-size: 15px;
-      color: var(--text-sub);
-      margin-bottom: 14px;
-      text-align: left;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
+    .admin-link {
+      color: #555;
+      font-size: 12px;
+      text-decoration: none;
+      cursor: pointer;
+      transition: color 0.2s;
     }
+    .admin-link:hover { color: var(--text-sub); }
+
+    /* Modal Overlay & Card */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(4px);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      padding: 16px;
+    }
+
+    .modal-content {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      width: 100%;
+      max-width: 440px;
+      padding: 24px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.8);
+      position: relative;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--card-border);
+    }
+
+    .modal-header h2 {
+      margin: 0;
+      font-size: 18px;
+      color: var(--text-main);
+    }
+
+    .btn-close {
+      background: none;
+      border: none;
+      color: var(--text-sub);
+      font-size: 20px;
+      cursor: pointer;
+    }
+    .btn-close:hover { color: #fff; }
 
     .admin-form {
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 14px;
     }
 
     .admin-form input {
@@ -246,6 +297,7 @@
     .admin-btn-group {
       display: flex;
       gap: 10px;
+      margin-top: 8px;
     }
 
     .admin-form button {
@@ -268,13 +320,8 @@
     .hidden { display: none !important; }
 
     @media (max-width: 480px) {
-      .results-section {
-        grid-template-columns: 1fr;
-      }
-      .btn-vote {
-        padding: 18px 12px;
-        font-size: 18px;
-      }
+      .results-section { grid-template-columns: 1fr; }
+      .btn-vote { padding: 18px 12px; font-size: 18px; }
     }
   </style>
 </head>
@@ -324,16 +371,41 @@
       </div>
     </div>
 
-    <div class="admin-section">
-      <h3>⚙️ Admin Controls</h3>
+    <div class="footer-section">
+      <a class="admin-link" onclick="openAdminAuthModal()">⚙️ Admin Mode</a>
+    </div>
+  </div>
+
+  <!-- Admin Auth Modal -->
+  <div id="admin-auth-modal" class="modal-overlay hidden">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>🔒 Admin Access</h2>
+        <button class="btn-close" onclick="closeAdminModals()">✕</button>
+      </div>
       <div class="admin-form">
-        <input type="password" id="admin-pw" placeholder="Admin Password">
+        <input type="password" id="auth-pw-input" placeholder="Enter Admin Password">
+        <button class="btn-update" onclick="verifyAdminPassword()">Login to Admin Console</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Admin Control Panel Modal -->
+  <div id="admin-panel-modal" class="modal-overlay hidden">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>⚙️ Admin Control Panel</h2>
+        <button class="btn-close" onclick="closeAdminModals()">✕</button>
+      </div>
+      <div class="admin-form">
+        <label style="font-size:13px; color:var(--text-sub);">Schedule Settings</label>
         <input type="text" id="new-match-time" placeholder="New Schedule (e.g., Sat Oct 24, 6:00 PM)">
         <input type="text" id="new-match-loc" placeholder="New Location (e.g., Central Park Pitch #1)">
-        <div class="admin-btn-group">
-          <button class="btn-update" onclick="updateMatchInfo()">Update Schedule</button>
-          <button class="btn-reset" onclick="resetVotes()">Reset Votes</button>
-        </div>
+        <button class="btn-update" onclick="updateMatchInfo()">Update Schedule</button>
+        
+        <hr style="border:0; border-top:1px solid #333; margin:8px 0;">
+        <label style="font-size:13px; color:var(--text-sub);">Data Management</label>
+        <button class="btn-reset" onclick="resetVotes()">Reset All Votes</button>
       </div>
     </div>
   </div>
@@ -344,6 +416,7 @@
 
     let currentUserEmail = "";
     let memberMap = {};
+    let authenticatedAdminPassword = "";
 
     window.onload = function() {
       initGoogleLogin();
@@ -481,40 +554,61 @@
       });
     }
 
+    /* Admin Modal Logic */
+    function openAdminAuthModal() {
+      document.getElementById("auth-pw-input").value = "";
+      document.getElementById("admin-auth-modal").classList.remove("hidden");
+    }
+
+    function verifyAdminPassword() {
+      const inputPw = document.getElementById("auth-pw-input").value;
+      if (!inputPw) {
+        alert("Please enter the password.");
+        return;
+      }
+      
+      authenticatedAdminPassword = inputPw;
+      document.getElementById("admin-auth-modal").classList.add("hidden");
+      document.getElementById("admin-panel-modal").classList.remove("hidden");
+    }
+
+    function closeAdminModals() {
+      document.getElementById("admin-auth-modal").classList.add("hidden");
+      document.getElementById("admin-panel-modal").classList.hidden = true;
+      document.getElementById("admin-panel-modal").classList.add("hidden");
+    }
+
     function updateMatchInfo() {
-      const pw = document.getElementById("admin-pw").value;
       const newTime = document.getElementById("new-match-time").value;
       const newLoc = document.getElementById("new-match-loc").value;
 
-      if (!pw || !newTime || !newLoc) {
-        alert("Please enter the password, schedule, and location.");
+      if (!newTime || !newLoc) {
+        alert("Please enter both new schedule and location.");
         return;
       }
 
       sendRequest({
         action: "updateInfo",
-        password: pw,
+        password: authenticatedAdminPassword,
         time: newTime,
         location: newLoc
+      }, () => {
+        closeAdminModals();
       });
     }
 
     function resetVotes() {
-      const pw = document.getElementById("admin-pw").value;
-      if (!pw) {
-        alert("Please enter the admin password.");
-        return;
-      }
-
       if (confirm("Are you sure you want to reset all votes?")) {
         sendRequest({
           action: "resetVotes",
-          password: pw
+          password: authenticatedAdminPassword
+        }, () => {
+          closeAdminModals();
         });
       }
     }
 
-    function sendRequest(params) {
+    function sendRequest(params, onSuccess) {
       params.t = new Date().getTime();
       const queryString = new URLSearchParams(params).toString();
       
@@ -524,8 +618,9 @@
           if (res.success) {
             alert("Updated successfully.");
             fetchData();
+            if (onSuccess) onSuccess();
           } else {
-            alert("Error: " + (res.message || "Unknown error occurred."));
+            alert("Error: " + (res.message || "Invalid password or server error."));
           }
         })
         .catch(err => {
