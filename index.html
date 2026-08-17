@@ -318,7 +318,9 @@
 
   <script>
     const GOOGLE_CLIENT_ID = "77918384297-tbu1ip01281v3m4rqfpj19f8thhclk68.apps.googleusercontent.com";
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz6MrqpRWByYLH-2iWMDdnLFC77k2-8HPF5cHbfz9HdDbJxSI_DwldD6AsKISRn0VyGIg/exec";
+    
+    // 최신 백엔드 웹 앱 URL 적용
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyUXFKjoGo94_s4ZTVnzts-phQPbHLccAeHMmBgqwvKCo4Sfjadg0XN_zzewzU3WLtL2A/exec";
 
     let currentUserEmail = "";
     let memberMap = {};
@@ -395,7 +397,7 @@
         nameElem.textContent = currentUserEmail;
         const totalMembers = Object.keys(memberMap).length;
         if (totalMembers === 0) {
-          debugElem.textContent = "(시트 명단 0개 읽힘)";
+          debugElem.textContent = "(시트 명단 0개 읽힘 - 백엔드 연결 확인)";
         } else {
           debugElem.textContent = `(시트에 이메일 미등록: ${currentUserEmail})`;
         }
@@ -437,12 +439,10 @@
         const authorName = memberMap[emailClean] || item.email || "Anonymous";
         const isMyComment = currentUserEmail && (emailClean === currentUserEmail);
 
-        // ID 매칭 보완: 서버에서 전달받은 ID가 없는 옛 댓글도 안전하게 ID 부여
         const commentId = item.id || ("c_legacy_" + index);
 
         let actionsHtml = "";
         if (isMyComment) {
-          const rawText = item.text || "";
           actionsHtml = `
             <span class="comment-actions">
               <button onclick="enableEditComment('${commentId}')">Edit</button>
