@@ -22,13 +22,19 @@
         .header { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border-color); }
         .title-area { font-size: 1.25rem; font-weight: 700; display: flex; align-items: center; gap: 6px; }
         .card { background: var(--card-bg); border-radius: 12px; padding: 16px; border: 1px solid var(--border-color); }
+        
+        /* Auth Area */
+        .auth-card { text-align: center; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+        .user-info { font-weight: 600; color: var(--accent-blue); font-size: 0.95rem; }
+
         .match-info { text-align: center; }
         .match-label { color: var(--accent-blue); font-size: 0.85rem; font-weight: 600; letter-spacing: 1px; margin-bottom: 4px; }
         .match-time { font-size: 1.35rem; font-weight: 700; margin-bottom: 4px; }
         .match-location { color: var(--text-secondary); font-size: 0.9rem; }
         .vote-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 16px; }
-        .vote-btn { border: none; border-radius: 10px; padding: 16px; font-size: 1rem; font-weight: 700; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; color: #fff; transition: transform 0.1s; }
+        .vote-btn { border: none; border-radius: 10px; padding: 16px; font-size: 1rem; font-weight: 700; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; color: #fff; transition: transform 0.1s, opacity 0.2s; }
         .vote-btn:active { transform: scale(0.98); }
+        .vote-btn:disabled { opacity: 0.4; cursor: not-allowed; }
         .btn-attend { background: #15803d; }
         .btn-absent { background: #b91c1c; }
         .section-title { font-size: 1rem; font-weight: 600; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
@@ -59,6 +65,19 @@
         </button>
     </div>
 
+    <!-- Google Login Card -->
+    <div class="card auth-card">
+        <div id="login-status-text" style="font-size: 0.85rem; color: var(--text-secondary);">
+            구글 계정으로 로그인하여 투표를 진행해주세요.
+        </div>
+        <div id="g_id_onload"
+             data-client_id="77918384297-tbu1ip01281v3m4rqfpj19f8thhclk68.apps.googleusercontent.com"
+             data-callback="handleCredentialResponse">
+        </div>
+        <div class="g_id_signin" data-type="standard" data-theme="dark"></div>
+        <div id="user-display" class="user-info" style="display:none;"></div>
+    </div>
+
     <!-- Admin Control Panel -->
     <div id="admin-panel" class="admin-panel">
         <div class="section-title" style="color: var(--accent-blue);">⚙️ 관리자 제어판</div>
@@ -78,13 +97,13 @@
     <!-- Match Info Card -->
     <div class="card match-info">
         <div class="match-label">NEXT MATCH</div>
-        <div class="match-time" id="display-time">다음 경기 일정을 지정해주세요</div>
-        <div class="match-location" id="display-loc">📍 장소 미정</div>
+        <div class="match-time" id="display-time">데이터 불러오는 중...</div>
+        <div class="match-location" id="display-loc">📍 -</div>
         <div class="vote-buttons">
-            <button class="vote-btn btn-attend" onclick="userVote('attend')">
+            <button id="btn-attend" class="vote-btn btn-attend" onclick="userVote('attend')" disabled>
                 🟢 참석 <span>(Attend)</span>
             </button>
-            <button class="vote-btn btn-absent" onclick="userVote('absent')">
+            <button id="btn-absent" class="vote-btn btn-absent" onclick="userVote('absent')" disabled>
                 🔴 불참 <span>(Absent)</span>
             </button>
         </div>
@@ -107,27 +126,110 @@
 </div>
 
 <script>
-    const GOOGLE_CLIENT_ID = "77918384297-tbu1ip01281v3m4rqfpj19f8thhclk68.apps.googleusercontent.com";
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxP9AX89sU0KbjsvxmxwqV5hJ1RnyGASgK2cbJ6fA04mrxcvJeWPxEZ3rkhT1c8wgSpaw/exec";
 
+    let currentUserEmail = "";
+    let currentUserName = "";
     let isAdmin = false;
-    let matchData = JSON.parse(localStorage.getItem('azfc_match')) || {
-        time: "다음 경기 일정을 지정해주세요",
-        location: "📍 장소를 입력해주세요",
-        attending: [],
-        absent: []
-    };
 
-    function renderApp() {
-        document.getElementById('display-time').innerText = matchData.time;
-        document.getElementById('display-loc').innerText = matchData.location;
-        
-        document.getElementById('count-attend').innerText = matchData.attending.length;
-        document.getElementById('names-attend').innerText = matchData.attending.join(', ') || '없음';
-        
-        document.getElementById('count-absent').innerText = matchData.absent.length;
-        document.getElementById('names-absent').innerText = matchData.absent.join(', ') || '없음';
+    // JWT 토큰 파싱 함수 (구글 로그인 정보 추출)
+    function parseJwt(token) {
+        try {
+            var base64Url = token.split('.')[1];
+            var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            var jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function(c) {
+                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+            }).join(''));
+            return JSON.parse(jsonPayload);
+        } catch(e) {
+            return null;
+        }
     }
 
+    // 초기 데이터 로드 (경기 일정 및 전체 투표 현황)
+    function loadServerData(email = "") {
+        fetch(`${SCRIPT_URL}?email=${encodeURIComponent(email)}`)
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById('display-time').innerText = data.matchInfo.time;
+                document.getElementById('display-loc').innerText = data.matchInfo.location;
+
+                document.getElementById('count-attend').innerText = data.attending.length;
+                document.getElementById('names-attend').innerText = data.attending.join(', ') || '없음';
+
+                document.getElementById('count-absent').innerText = data.absent.length;
+                document.getElementById('names-absent').innerText = data.absent.join(', ') || '없음';
+
+                if (email) {
+                    if (data.userName) {
+                        currentUserName = data.userName;
+                        document.getElementById('login-status-text').style.display = "none";
+                        document.querySelector('.g_id_signin').style.display = "none";
+                        document.getElementById('user-display').style.display = "block";
+                        document.getElementById('user-display').innerText = `👤 ${data.userName}님 (인증완료)`;
+                        
+                        document.getElementById('btn-attend').disabled = false;
+                        document.getElementById('btn-absent').disabled = false;
+
+                        if (data.myVote === 'attend') {
+                            document.getElementById('btn-attend').style.outline = "3px solid #fff";
+                        } else if (data.myVote === 'absent') {
+                            document.getElementById('btn-absent').style.outline = "3px solid #fff";
+                        }
+                    } else {
+                        alert("AZFC 명단에 등록되지 않은 구글 계정입니다.\n관리자에게 이메일 등록을 요청하세요.");
+                        document.getElementById('user-display').innerText = "⚠️ 미등록 계정";
+                        document.getElementById('user-display').style.display = "block";
+                    }
+                }
+            })
+            .catch(err => console.error("데이터 불러오기 실패:", err));
+    }
+
+    // 구글 로그인 콜백
+    function handleCredentialResponse(response) {
+        const responsePayload = parseJwt(response.credential);
+        if (responsePayload && responsePayload.email) {
+            currentUserEmail = responsePayload.email;
+            loadServerData(currentUserEmail);
+        }
+    }
+
+    // 투표하기
+    function userVote(type) {
+        if (!currentUserEmail || !currentUserName) {
+            alert("먼저 구글 로그인을 완료해주세요.");
+            return;
+        }
+
+        document.getElementById('btn-attend').disabled = true;
+        document.getElementById('btn-absent').disabled = true;
+
+        fetch(SCRIPT_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify({
+                action: 'vote',
+                email: currentUserEmail,
+                status: type
+            })
+        })
+        .then(res => res.json())
+        .then(res => {
+            if (res.success) {
+                alert("투표가 성공적으로 저장되었습니다!");
+                loadServerData(currentUserEmail);
+            } else {
+                alert(res.message);
+            }
+        })
+        .finally(() => {
+            document.getElementById('btn-attend').disabled = false;
+            document.getElementById('btn-absent').disabled = false;
+        });
+    }
+
+    // 관리자 모드 토글
     function toggleAdminMode() {
         if (!isAdmin) {
             let password = prompt("관리자 비밀번호를 입력하세요:", "");
@@ -146,47 +248,50 @@
         }
     }
 
+    // 경기 정보 수정 (관리자)
     function updateMatchInfo() {
         let newTime = document.getElementById('edit-match-time').value;
         let newLoc = document.getElementById('edit-match-loc').value;
-        if (newTime) matchData.time = newTime;
-        if (newLoc) matchData.location = "📍 " + newLoc;
-        
-        localStorage.setItem('azfc_match', JSON.stringify(matchData));
-        renderApp();
-        alert("경기 정보가 수정되었습니다.");
+        if (newLoc && !newLoc.startsWith("📍")) newLoc = "📍 " + newLoc;
+
+        fetch(SCRIPT_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify({
+                action: 'updateMatch',
+                time: newTime,
+                location: newLoc
+            })
+        })
+        .then(res => res.json())
+        .then(res => {
+            if (res.success) {
+                alert("경기 정보가 수정되었습니다.");
+                loadServerData(currentUserEmail);
+            }
+        });
     }
 
-    function userVote(type) {
-        let name = prompt("투표하시는 성함을 입력해주세요:", "");
-        if (!name || name.trim() === "") return;
-        name = name.trim();
-
-        matchData.attending = matchData.attending.filter(n => n !== name);
-        matchData.absent = matchData.absent.filter(n => n !== name);
-
-        if (type === 'attend') {
-            matchData.attending.push(name);
-        } else {
-            matchData.absent.push(name);
-        }
-
-        localStorage.setItem('azfc_match', JSON.stringify(matchData));
-        renderApp();
-        alert(name + "님의 투표가 반영되었습니다.");
-    }
-
+    // 투표 전체 초기화 (관리자)
     function resetVotes() {
         if (confirm("정말로 모든 참석/불참 투표 데이터를 초기화하시겠습니까?")) {
-            matchData.attending = [];
-            matchData.absent = [];
-            localStorage.setItem('azfc_match', JSON.stringify(matchData));
-            renderApp();
-            alert("투표 데이터가 초기화되었습니다.");
+            fetch(SCRIPT_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify({ action: 'resetVotes' })
+            })
+            .then(res => res.json())
+            .then(res => {
+                if (res.success) {
+                    alert("투표 데이터가 초기화되었습니다.");
+                    loadServerData(currentUserEmail);
+                }
+            });
         }
     }
 
-    renderApp();
+    // 페이지 진입 시 데이터 로드
+    loadServerData();
 </script>
 
 </body>
