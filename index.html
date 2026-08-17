@@ -107,10 +107,10 @@
 
   <script>
     const GOOGLE_CLIENT_ID = "77918384297-tbu1ip01281v3m4rqfpj19f8thhclk68.apps.googleusercontent.com";
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzhcMkEcuUCp06vpCihsLek-ou7bYOUiYDArFaVjEwXS24nsjy1eGy80nW5STJl5Rs4fA/exec";
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzCzx51uUeK7qGl-FDDm7W04j4tgG2BtGfwDufneew-BjLYmFr7Sy1YtPYYB3t5TEuS/exec";
 
     let currentUserEmail = "";
-    let memberMap = {}; // { 이메일: 이름 } 매핑 데이터 저장
+    let memberMap = {};
 
     window.onload = function() {
       initGoogleLogin();
@@ -160,7 +160,6 @@
       return JSON.parse(jsonPayload);
     }
 
-    // 시트의 AZFC_Members(A열)에서 가져온 이름으로 표시
     function updateUserHeaderName() {
       if (!currentUserEmail) return;
       const displayName = memberMap[currentUserEmail] || (currentUserEmail + " (명단 미등록)");
@@ -175,13 +174,15 @@
       document.getElementById("btn-absent").classList.remove("active");
     }
 
-    // 데이터 동기화 (GET)
     function fetchData() {
       const url = SCRIPT_URL + "?action=getData&t=" + new Date().getTime();
       fetch(url)
         .then(res => res.json())
         .then(data => {
-          if (!data.success) return;
+          if (!data.success) {
+            console.error("서버 에러:", data.message);
+            return;
+          }
 
           document.getElementById("match-time").innerText = data.time || "미정";
           document.getElementById("match-location").innerText = data.location || "미정";
@@ -194,7 +195,7 @@
           const attendList = data.attendees || [];
           const absentList = data.absentees || [];
           const attendEmails = data.attendeeEmails || [];
-          const absentEmails = data.absenteeEmails || [];
+          const absenteeEmails = data.absenteeEmails || [];
 
           document.getElementById("attend-count").innerText = attendList.length;
           document.getElementById("attend-list").innerText = attendList.join(", ") || "-";
@@ -210,7 +211,6 @@
         .catch(err => console.error("데이터 불러오기 실패:", err));
     }
 
-    // 투표 전송 (안전한 GET 파라미터 방식)
     function submitVote(status) {
       if (!currentUserEmail) {
         alert("로그인이 필요합니다.");
@@ -257,9 +257,8 @@
       }
     }
 
-    // GET 쿼리 스트링 기반 API 호출 함수
     function sendRequest(params) {
-      params.t = new Date().getTime(); // 캐시 방지
+      params.t = new Date().getTime();
       const queryString = new URLSearchParams(params).toString();
       
       fetch(SCRIPT_URL + "?" + queryString)
@@ -274,7 +273,7 @@
         })
         .catch(err => {
           console.error("통신 오류:", err);
-          alert("서버와 통신할 수 없습니다. 배포 권한 설정을 확인하세요.");
+          alert("서버와 통신할 수 없습니다. 배포 권한과 웹앱 URL을 확인하세요.");
         });
     }
   </script>
