@@ -181,14 +181,31 @@
     .result-box.absent-box h3 { color: var(--danger-color); }
     .result-box.unvoted-box h3 { color: var(--warning-color); }
 
+    /* 멤버 목록: 한 사람당 한 줄씩 나오도록 수정한 부분 */
     .member-list {
       font-size: 14px;
       color: #ccc;
-      line-height: 1.6;
-      max-height: 180px;
+      max-height: 220px;
       overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      padding: 0 4px;
+    }
+
+    .member-item {
+      background-color: #1a1a1a;
+      padding: 6px 8px;
+      border-radius: 6px;
+      border: 1px solid #333;
       text-align: center;
-      word-break: keep-all;
+      word-break: break-all;
+    }
+
+    .empty-msg {
+      color: #666;
+      font-size: 13px;
+      padding: 8px 0;
     }
 
     /* 관리자 세션 */
@@ -290,15 +307,15 @@
     <div class="results-section">
       <div class="result-box attend-box">
         <h3>참석 (<span id="attend-count">0</span>명)</h3>
-        <div id="attend-list" class="member-list">-</div>
+        <div id="attend-list" class="member-list"><div class="empty-msg">-</div></div>
       </div>
       <div class="result-box absent-box">
         <h3>불참 (<span id="absent-count">0</span>명)</h3>
-        <div id="absent-list" class="member-list">-</div>
+        <div id="absent-list" class="member-list"><div class="empty-msg">-</div></div>
       </div>
       <div class="result-box unvoted-box">
         <h3>미투표 (<span id="unvoted-count">0</span>명)</h3>
-        <div id="unvoted-list" class="member-list">-</div>
+        <div id="unvoted-list" class="member-list"><div class="empty-msg">-</div></div>
       </div>
     </div>
 
@@ -377,12 +394,24 @@
       document.getElementById("user-display-name").textContent = displayName;
     }
 
-    function logout() {
-      currentUserEmail = "";
-      document.getElementById("logged-in-view").classList.add("hidden");
-      document.getElementById("logged-out-view").classList.remove("hidden");
-      document.getElementById("btn-attend").classList.remove("active");
-      document.getElementById("btn-absent").classList.remove("active");
+    function renderMemberList(elementId, namesArray) {
+      const container = document.getElementById(elementId);
+      container.innerHTML = "";
+
+      if (!namesArray || namesArray.length === 0) {
+        const emptyDiv = document.createElement("div");
+        emptyDiv.className = "empty-msg";
+        emptyDiv.textContent = "-";
+        container.appendChild(emptyDiv);
+        return;
+      }
+
+      namesArray.forEach(name => {
+        const itemDiv = document.createElement("div");
+        itemDiv.className = "member-item";
+        itemDiv.textContent = name;
+        container.appendChild(itemDiv);
+      });
     }
 
     function fetchData() {
@@ -408,11 +437,13 @@
           const attendEmails = (data.attendeeEmails || []).map(e => e.toLowerCase().trim());
           const absenteeEmails = (data.absenteeEmails || []).map(e => e.toLowerCase().trim());
 
+          // 카운트 업데이트
           document.getElementById("attend-count").textContent = attendList.length;
-          document.getElementById("attend-list").textContent = attendList.join(", ") || "-";
-
           document.getElementById("absent-count").textContent = absentList.length;
-          document.getElementById("absent-list").textContent = absentList.join(", ") || "-";
+
+          // 한 줄씩 렌더링
+          renderMemberList("attend-list", attendList);
+          renderMemberList("absent-list", absentList);
 
           const votedEmails = new Set([...attendEmails, ...absenteeEmails]);
           const unvotedList = [];
@@ -424,7 +455,7 @@
           }
 
           document.getElementById("unvoted-count").textContent = unvotedList.length;
-          document.getElementById("unvoted-list").textContent = unvotedList.join(", ") || "-";
+          renderMemberList("unvoted-list", unvotedList);
 
           if (currentUserEmail) {
             document.getElementById("btn-attend").classList.toggle("active", attendEmails.includes(currentUserEmail));
