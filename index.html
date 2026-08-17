@@ -1,302 +1,353 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AZFC Soccer Vote</title>
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
-    <style>
-        :root {
-            --bg-color: #0f172a;
-            --card-bg: #1e293b;
-            --text-primary: #f8fafc;
-            --text-secondary: #94a3b8;
-            --accent-green: #22c55e;
-            --accent-red: #ef4444;
-            --accent-blue: #3b82f6;
-            --border-color: #334155;
-        }
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-        body { background-color: var(--bg-color); color: var(--text-primary); display: flex; justify-content: center; padding: 16px; min-height: 100vh; }
-        .app-container { width: 100%; max-width: 480px; display: flex; flex-direction: column; gap: 16px; }
-        .header { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border-color); }
-        .title-area { font-size: 1.25rem; font-weight: 700; display: flex; align-items: center; gap: 6px; }
-        .card { background: var(--card-bg); border-radius: 12px; padding: 16px; border: 1px solid var(--border-color); }
-        
-        /* Auth Area */
-        .auth-card { text-align: center; display: flex; flex-direction: column; align-items: center; gap: 10px; }
-        .user-info { font-weight: 600; color: var(--accent-blue); font-size: 0.95rem; }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AZFC 축구 모임 투표</title>
+  
+  <!-- Google Identity Services SDK -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  
+  <style>
+    :root {
+      --bg-color: #121212;
+      --card-bg: #1e1e1e;
+      --accent-color: #00e676;
+      --text-color: #ffffff;
+      --text-sub: #b0b0b0;
+      --border-color: #333333;
+    }
 
-        .match-info { text-align: center; }
-        .match-label { color: var(--accent-blue); font-size: 0.85rem; font-weight: 600; letter-spacing: 1px; margin-bottom: 4px; }
-        .match-time { font-size: 1.35rem; font-weight: 700; margin-bottom: 4px; }
-        .match-location { color: var(--text-secondary); font-size: 0.9rem; }
-        .vote-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 16px; }
-        .vote-btn { border: none; border-radius: 10px; padding: 16px; font-size: 1rem; font-weight: 700; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; color: #fff; transition: transform 0.1s, opacity 0.2s; }
-        .vote-btn:active { transform: scale(0.98); }
-        .vote-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-        .btn-attend { background: #15803d; }
-        .btn-absent { background: #b91c1c; }
-        .section-title { font-size: 1rem; font-weight: 600; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
-        .list-group { display: flex; flex-direction: column; gap: 8px; }
-        .list-card { background: #0f172a; border-radius: 8px; padding: 12px; font-size: 0.9rem; }
-        .list-card-header { font-weight: 600; margin-bottom: 6px; display: flex; justify-content: space-between; }
-        .tag-green { color: var(--accent-green); }
-        .tag-red { color: var(--accent-red); }
-        .names-text { color: var(--text-secondary); font-size: 0.85rem; line-height: 1.4; word-break: keep-all; }
-        
-        /* Admin Toggle & Panel */
-        .admin-toggle-wrap { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; background: #0f172a; padding: 6px 12px; border-radius: 20px; border: 1px solid var(--border-color); cursor: pointer; color: #fff; }
-        .admin-panel { display: none; background: #1e293b; border: 1px solid var(--accent-blue); border-radius: 12px; padding: 16px; margin-bottom: 16px; }
-        .admin-panel.active { display: block; }
-        .admin-input-group { display: flex; gap: 8px; margin-bottom: 8px; }
-        .admin-input { flex: 1; background: #0f172a; border: 1px solid var(--border-color); border-radius: 6px; padding: 8px; color: #fff; font-size: 0.85rem; }
-        .btn-small { background: var(--accent-blue); border: none; border-radius: 6px; padding: 8px 12px; color: #fff; font-weight: 600; cursor: pointer; font-size: 0.85rem; }
-        .btn-danger { background: var(--accent-red); }
-    </style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      display: flex;
+      justify-content: center;
+      padding: 20px 12px;
+      min-height: 100vh;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 480px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .card {
+      background-color: var(--card-bg);
+      border-radius: 12px;
+      padding: 20px;
+      border: 1px solid var(--border-color);
+    }
+
+    h1 {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--accent-color);
+      margin-bottom: 12px;
+    }
+
+    .match-info p {
+      font-size: 0.95rem;
+      color: var(--text-sub);
+      margin-bottom: 6px;
+    }
+
+    .login-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      padding: 16px 0;
+    }
+
+    .user-info {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.9rem;
+      color: var(--accent-color);
+    }
+
+    .vote-btns {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    button {
+      background-color: #2a2a2a;
+      color: var(--text-color);
+      border: 1px solid var(--border-color);
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    button:hover {
+      background-color: #3a3a3a;
+    }
+
+    button.active {
+      background-color: var(--accent-color);
+      color: #000;
+      border-color: var(--accent-color);
+    }
+
+    .admin-section {
+      margin-top: 24px;
+      border-top: 1px dashed var(--border-color);
+      padding-top: 16px;
+    }
+
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    input {
+      background-color: #2a2a2a;
+      border: 1px solid var(--border-color);
+      color: #fff;
+      padding: 10px;
+      border-radius: 6px;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+  </style>
 </head>
 <body>
 
-<div class="app-container">
-    <div class="header">
-        <div class="title-area">⚽ AZFC Vote</div>
-        <button class="admin-toggle-wrap" onclick="toggleAdminMode()">
-            <span id="admin-status-icon">👮</span> <span id="admin-status-text">관리자 모드</span>
-        </button>
-    </div>
-
-    <!-- Google Login Card -->
-    <div class="card auth-card">
-        <div id="login-status-text" style="font-size: 0.85rem; color: var(--text-secondary);">
-            구글 계정으로 로그인하여 투표를 진행해주세요.
-        </div>
-        <div id="g_id_onload"
-             data-client_id="77918384297-tbu1ip01281v3m4rqfpj19f8thhclk68.apps.googleusercontent.com"
-             data-callback="handleCredentialResponse">
-        </div>
-        <div class="g_id_signin" data-type="standard" data-theme="dark"></div>
-        <div id="user-display" class="user-info" style="display:none;"></div>
-    </div>
-
-    <!-- Admin Control Panel -->
-    <div id="admin-panel" class="admin-panel">
-        <div class="section-title" style="color: var(--accent-blue);">⚙️ 관리자 제어판</div>
-        <div style="font-size:0.8rem; color:var(--text-secondary); margin-bottom:12px;">경기 정보를 변경하거나 투표를 초기화할 수 있습니다.</div>
-        
-        <div class="admin-input-group">
-            <input type="text" id="edit-match-time" class="admin-input" placeholder="경기 시간 (예: 토요일 08:00 AM)">
-        </div>
-        <div class="admin-input-group">
-            <input type="text" id="edit-match-loc" class="admin-input" placeholder="경기 장소 (예: 인조잔디구장)">
-            <button class="btn-small" onclick="updateMatchInfo()">수정</button>
-        </div>
-        <hr style="border-color:var(--border-color); margin: 12px 0;">
-        <button class="btn-small btn-danger" style="width:100%;" onclick="resetVotes()">⚠️ 투표 목록 전체 초기화</button>
-    </div>
-
-    <!-- Match Info Card -->
-    <div class="card match-info">
-        <div class="match-label">NEXT MATCH</div>
-        <div class="match-time" id="display-time">데이터 불러오는 중...</div>
-        <div class="match-location" id="display-loc">📍 -</div>
-        <div class="vote-buttons">
-            <button id="btn-attend" class="vote-btn btn-attend" onclick="userVote('attend')" disabled>
-                🟢 참석 <span>(Attend)</span>
-            </button>
-            <button id="btn-absent" class="vote-btn btn-absent" onclick="userVote('absent')" disabled>
-                🔴 불참 <span>(Absent)</span>
-            </button>
-        </div>
-    </div>
-
-    <!-- Live Attendance List -->
+  <div class="container">
+    <!-- 경기 정보 -->
     <div class="card">
-        <div class="section-title">📊 실시간 투표 현황</div>
-        <div class="list-group">
-            <div class="list-card">
-                <div class="list-card-header tag-green">🟢 참석자 (<span id="count-attend">0</span>명)</div>
-                <div class="names-text" id="names-attend">없음</div>
-            </div>
-            <div class="list-card">
-                <div class="list-card-header tag-red">🔴 불참자 (<span id="count-absent">0</span>명)</div>
-                <div class="names-text" id="names-absent">없음</div>
-            </div>
-        </div>
+      <h1>AZFC 경기 투표</h1>
+      <div class="match-info">
+        <p>🗓 일시: <span id="match-time">로딩 중...</span></p>
+        <p>📍 장소: <span id="match-location">로딩 중...</span></p>
+      </div>
     </div>
-</div>
 
-<script>
+    <!-- 구글 로그인 / 투표 영역 -->
+    <div class="card" id="auth-card">
+      <div id="logged-out-view" class="login-box">
+        <p style="font-size: 0.9rem; color: var(--text-sub);">투표에 참여하려면 구글 계정으로 로그인해 주세요.</p>
+        <div id="google-login-btn"></div>
+      </div>
+
+      <div id="logged-in-view" class="hidden">
+        <div class="user-info">
+          <span id="user-email-display">user@example.com</span>
+          <button onclick="logout()" style="padding: 4px 8px; font-size: 0.8rem;">로그아웃</button>
+        </div>
+        
+        <div class="vote-btns">
+          <button id="btn-attend" onclick="submitVote('참석')">참석</button>
+          <button id="btn-absent" onclick="submitVote('불참')">불참</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 투표 현황 -->
+    <div class="card">
+      <h2 style="font-size: 1.1rem; margin-bottom: 10px;">투표 현황</h2>
+      <div style="font-size: 0.95rem; color: var(--text-sub); line-height: 1.6;">
+        <p>🟢 참석 (<span id="attend-count">0</span>명): <span id="attend-list">-</span></p>
+        <p style="margin-top: 6px;">🔴 불참 (<span id="absent-count">0</span>명): <span id="absent-list">-</span></p>
+      </div>
+    </div>
+
+    <!-- 관리자 기능 -->
+    <div class="card admin-section">
+      <h2 style="font-size: 1rem; color: var(--text-sub); margin-bottom: 10px;">관리자 설정</h2>
+      <div class="input-group">
+        <input type="password" id="admin-pw" placeholder="관리자 비밀번호">
+        <input type="text" id="new-match-time" placeholder="새 경기 일시">
+        <input type="text" id="new-match-loc" placeholder="새 경기 장소">
+        <button onclick="updateMatchInfo()">일정 업데이트</button>
+        <button onclick="resetVotes()" style="background-color: #cf6679; color: #000;">투표 초기화</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ================= CONFIGURATION =================
+    const GOOGLE_CLIENT_ID = "77918384297-tbu1ip01281v3m4rqfpj19f8thhclk68.apps.googleusercontent.com";
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzhcMkEcuUCp06vpCihsLek-ou7bYOUiYDArFaVjEwXS24nsjy1eGy80nW5STJl5Rs4fA/exec";
+    // =================================================
 
     let currentUserEmail = "";
-    let currentUserName = "";
-    let isAdmin = false;
 
-    // JWT 토큰 파싱 함수 (구글 로그인 정보 추출)
-    function parseJwt(token) {
-        try {
-            var base64Url = token.split('.')[1];
-            var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-            var jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function(c) {
-                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-            }).join(''));
-            return JSON.parse(jsonPayload);
-        } catch(e) {
-            return null;
+    window.onload = function() {
+      initGoogleLogin();
+      fetchData();
+    };
+
+    function initGoogleLogin() {
+      if (typeof google === 'undefined' || !google.accounts) {
+        setTimeout(initGoogleLogin, 200);
+        return;
+      }
+
+      google.accounts.id.initialize({
+        client_id: GOOGLE_CLIENT_ID,
+        callback: handleCredentialResponse,
+        use_fedcm_for_prompt: false,
+        auto_select: false
+      });
+
+      google.accounts.id.renderButton(
+        document.getElementById("google-login-btn"),
+        { 
+          theme: "outline", 
+          size: "large", 
+          type: "standard",
+          shape: "pill",
+          text: "signin_with"
         }
+      );
     }
 
-    // 초기 데이터 로드 (경기 일정 및 전체 투표 현황)
-    function loadServerData(email = "") {
-        fetch(`${SCRIPT_URL}?email=${encodeURIComponent(email)}`)
-            .then(res => res.json())
-            .then(data => {
-                document.getElementById('display-time').innerText = data.matchInfo.time;
-                document.getElementById('display-loc').innerText = data.matchInfo.location;
-
-                document.getElementById('count-attend').innerText = data.attending.length;
-                document.getElementById('names-attend').innerText = data.attending.join(', ') || '없음';
-
-                document.getElementById('count-absent').innerText = data.absent.length;
-                document.getElementById('names-absent').innerText = data.absent.join(', ') || '없음';
-
-                if (email) {
-                    if (data.userName) {
-                        currentUserName = data.userName;
-                        document.getElementById('login-status-text').style.display = "none";
-                        document.querySelector('.g_id_signin').style.display = "none";
-                        document.getElementById('user-display').style.display = "block";
-                        document.getElementById('user-display').innerText = `👤 ${data.userName}님 (인증완료)`;
-                        
-                        document.getElementById('btn-attend').disabled = false;
-                        document.getElementById('btn-absent').disabled = false;
-
-                        // 이전 투표 선택 표시 초기화
-                        document.getElementById('btn-attend').style.outline = "none";
-                        document.getElementById('btn-absent').style.outline = "none";
-
-                        if (data.myVote === 'attend') {
-                            document.getElementById('btn-attend').style.outline = "3px solid #fff";
-                        } else if (data.myVote === 'absent') {
-                            document.getElementById('btn-absent').style.outline = "3px solid #fff";
-                        }
-                    } else {
-                        alert("AZFC 명단에 등록되지 않은 구글 계정입니다.\n관리자에게 이메일 등록을 요청하세요.");
-                        document.getElementById('user-display').innerText = "⚠️ 미등록 계정";
-                        document.getElementById('user-display').style.display = "block";
-                    }
-                }
-            })
-            .catch(err => console.error("데이터 불러오기 실패:", err));
-    }
-
-    // 구글 로그인 콜백
     function handleCredentialResponse(response) {
+      try {
         const responsePayload = parseJwt(response.credential);
-        if (responsePayload && responsePayload.email) {
-            currentUserEmail = responsePayload.email;
-            loadServerData(currentUserEmail);
-        }
+        currentUserEmail = responsePayload.email;
+        
+        document.getElementById("user-email-display").innerText = currentUserEmail;
+        document.getElementById("logged-out-view").classList.add("hidden");
+        document.getElementById("logged-in-view").classList.remove("hidden");
+        
+        fetchData();
+      } catch (e) {
+        console.error("로그인 토큰 파싱 에러:", e);
+        alert("로그인 처리 중 오류가 발생했습니다.");
+      }
     }
 
-    // 투표하기
-    function userVote(type) {
-        if (!currentUserEmail || !currentUserName) {
-            alert("먼저 구글 로그인을 완료해주세요.");
-            return;
-        }
+    function parseJwt(token) {
+      const base64Url = token.split('.')[1];
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function(c) {
+          return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+      }).join(''));
+      return JSON.parse(jsonPayload);
+    }
 
-        document.getElementById('btn-attend').disabled = true;
-        document.getElementById('btn-absent').disabled = true;
+    function logout() {
+      currentUserEmail = "";
+      document.getElementById("logged-in-view").classList.add("hidden");
+      document.getElementById("logged-out-view").classList.remove("hidden");
+      document.getElementById("btn-attend").classList.remove("active");
+      document.getElementById("btn-absent").classList.remove("active");
+    }
 
-        fetch(SCRIPT_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-            body: JSON.stringify({
-                action: 'vote',
-                email: currentUserEmail,
-                status: type
-            })
-        })
+    function fetchData() {
+      fetch(SCRIPT_URL)
         .then(res => res.json())
-        .then(res => {
-            if (res.success) {
-                alert("투표가 성공적으로 저장되었습니다!");
-                loadServerData(currentUserEmail);
-            } else {
-                alert(res.message);
-            }
+        .then(data => {
+          document.getElementById("match-time").innerText = data.time || "미정";
+          document.getElementById("match-location").innerText = data.location || "미정";
+
+          const attendList = data.attendees || [];
+          const absentList = data.absentees || [];
+
+          document.getElementById("attend-count").innerText = attendList.length;
+          document.getElementById("attend-list").innerText = attendList.join(", ") || "-";
+
+          document.getElementById("absent-count").innerText = absentList.length;
+          document.getElementById("absent-list").innerText = absentList.join(", ") || "-";
+
+          if (currentUserEmail) {
+            document.getElementById("btn-attend").classList.toggle("active", attendList.includes(currentUserEmail));
+            document.getElementById("btn-absent").classList.toggle("active", absentList.includes(currentUserEmail));
+          }
         })
-        .finally(() => {
-            document.getElementById('btn-attend').disabled = false;
-            document.getElementById('btn-absent').disabled = false;
-        });
+        .catch(err => console.error("데이터 동기화 실패:", err));
     }
 
-    // 관리자 모드 토글
-    function toggleAdminMode() {
-        if (!isAdmin) {
-            let password = prompt("관리자 비밀번호를 입력하세요:", "");
-            if (password === "azfc0000") {
-                isAdmin = true;
-                document.getElementById('admin-panel').classList.add('active');
-                document.getElementById('admin-status-text').innerText = "관리자 ON";
-                alert("관리자 모드가 활성화되었습니다.");
-            } else if (password !== null) {
-                alert("비밀번호가 올바르지 않습니다.");
-            }
-        } else {
-            isAdmin = false;
-            document.getElementById('admin-panel').classList.remove('active');
-            document.getElementById('admin-status-text').innerText = "관리자 모드";
-        }
+    function submitVote(status) {
+      if (!currentUserEmail) {
+        alert("로그인이 필요합니다.");
+        return;
+      }
+
+      sendRequest({
+        action: "vote",
+        email: currentUserEmail,
+        status: status
+      });
     }
 
-    // 경기 정보 수정 (관리자)
     function updateMatchInfo() {
-        let newTime = document.getElementById('edit-match-time').value;
-        let newLoc = document.getElementById('edit-match-loc').value;
-        if (newLoc && !newLoc.startsWith("📍")) newLoc = "📍 " + newLoc;
+      const pw = document.getElementById("admin-pw").value;
+      const newTime = document.getElementById("new-match-time").value;
+      const newLoc = document.getElementById("new-match-loc").value;
 
-        fetch(SCRIPT_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-            body: JSON.stringify({
-                action: 'updateMatch',
-                time: newTime,
-                location: newLoc
-            })
-        })
-        .then(res => res.json())
-        .then(res => {
-            if (res.success) {
-                alert("경기 정보가 수정되었습니다.");
-                loadServerData(currentUserEmail);
-            }
-        });
+      if (!pw || !newTime || !newLoc) {
+        alert("비밀번호, 일시, 장소를 모두 입력하세요.");
+        return;
+      }
+
+      sendRequest({
+        action: "updateInfo",
+        password: pw,
+        time: newTime,
+        location: newLoc
+      });
     }
 
-    // 투표 전체 초기화 (관리자)
     function resetVotes() {
-        if (confirm("정말로 모든 참석/불참 투표 데이터를 초기화하시겠습니까?")) {
-            fetch(SCRIPT_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                body: JSON.stringify({ action: 'resetVotes' })
-            })
-            .then(res => res.json())
-            .then(res => {
-                if (res.success) {
-                    alert("투표 데이터가 초기화되었습니다.");
-                    loadServerData(currentUserEmail);
-                }
-            });
-        }
+      const pw = document.getElementById("admin-pw").value;
+      if (!pw) {
+        alert("비밀번호를 입력하세요.");
+        return;
+      }
+
+      if (confirm("정말로 모든 투표 데이터를 초기화하시겠습니까?")) {
+        sendRequest({
+          action: "resetVotes",
+          password: pw
+        });
+      }
     }
 
-    // 페이지 진입 시 데이터 로드
-    loadServerData();
-</script>
-
+    function sendRequest(payload) {
+      fetch(SCRIPT_URL, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify(payload)
+      })
+      .then(res => res.json())
+      .then(res => {
+        if (res.success) {
+          alert("처리되었습니다.");
+          fetchData();
+        } else {
+          alert("오류: " + (res.message || "처리에 실패했습니다."));
+        }
+      })
+      .catch(err => {
+        console.error("요청 오류:", err);
+        alert("서버 통신 중 오류가 발생했습니다.");
+      });
+    }
+  </script>
 </body>
 </html>
