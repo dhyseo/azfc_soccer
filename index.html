@@ -374,7 +374,7 @@
     function updateUserHeaderName() {
       if (!currentUserEmail) return;
       const displayName = memberMap[currentUserEmail] || (currentUserEmail + " (명단 미등록)");
-      document.getElementById("user-display-name").innerText = displayName;
+      document.getElementById("user-display-name").textContent = displayName;
     }
 
     function logout() {
@@ -395,8 +395,8 @@
             return;
           }
 
-          document.getElementById("match-time").innerText = data.time || "미정";
-          document.getElementById("match-location").innerText = data.location || "미정";
+          document.getElementById("match-time").textContent = data.time || "미정";
+          document.getElementById("match-location").textContent = data.location || "미정";
 
           if (data.members) {
             memberMap = data.members;
@@ -408,11 +408,11 @@
           const attendEmails = (data.attendeeEmails || []).map(e => e.toLowerCase().trim());
           const absenteeEmails = (data.absenteeEmails || []).map(e => e.toLowerCase().trim());
 
-          document.getElementById("attend-count").innerText = attendList.length;
-          document.getElementById("attend-list").innerText = attendList.join(", ") || "-";
+          document.getElementById("attend-count").textContent = attendList.length;
+          document.getElementById("attend-list").textContent = attendList.join(", ") || "-";
 
-          document.getElementById("absent-count").innerText = absentList.length;
-          document.getElementById("absent-list").innerText = absentList.join(", ") || "-";
+          document.getElementById("absent-count").textContent = absentList.length;
+          document.getElementById("absent-list").textContent = absentList.join(", ") || "-";
 
           const votedEmails = new Set([...attendEmails, ...absenteeEmails]);
           const unvotedList = [];
@@ -423,8 +423,8 @@
             }
           }
 
-          document.getElementById("unvoted-count").innerText = unvotedList.length;
-          document.getElementById("unvoted-list").innerText = unvotedList.join(", ") || "-";
+          document.getElementById("unvoted-count").textContent = unvotedList.length;
+          document.getElementById("unvoted-list").textContent = unvotedList.join(", ") || "-";
 
           if (currentUserEmail) {
             document.getElementById("btn-attend").classList.toggle("active", attendEmails.includes(currentUserEmail));
