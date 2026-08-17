@@ -84,7 +84,6 @@
     }
     .btn-logout:hover { background-color: #444; color: #fff; }
 
-    /* Match Info Card */
     .info-card {
       background-color: #262626;
       border: 1px solid #333;
@@ -108,7 +107,6 @@
       min-width: 100px;
     }
 
-    /* Voting Buttons */
     .vote-buttons {
       display: flex;
       gap: 16px;
@@ -157,7 +155,6 @@
       transform: translateY(-2px);
     }
 
-    /* Roster Lists (3 Columns) */
     .results-section {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -206,30 +203,26 @@
       font-weight: 500;
     }
 
-    .empty-msg {
-      color: #666;
-      font-size: 13px;
-      padding: 8px 0;
-    }
+    .empty-msg { color: #666; font-size: 13px; padding: 8px 0; }
 
-    /* Footer / Admin Entry */
     .footer-section {
-      text-align: center;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
       margin-top: 16px;
       padding-top: 16px;
       border-top: 1px solid var(--card-border);
     }
 
-    .admin-link {
-      color: #555;
+    .footer-link {
+      color: #777;
       font-size: 12px;
       text-decoration: none;
       cursor: pointer;
       transition: color 0.2s;
     }
-    .admin-link:hover { color: var(--text-sub); }
+    .footer-link:hover { color: var(--text-sub); }
 
-    /* Modal Overlay & Card */
     .modal-overlay {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
@@ -247,10 +240,12 @@
       border: 1px solid var(--card-border);
       border-radius: 16px;
       width: 100%;
-      max-width: 440px;
+      max-width: 480px;
       padding: 24px;
       box-shadow: 0 20px 40px rgba(0,0,0,0.8);
       position: relative;
+      max-height: 80vh;
+      overflow-y: auto;
     }
 
     .modal-header {
@@ -262,60 +257,31 @@
       border-bottom: 1px solid var(--card-border);
     }
 
-    .modal-header h2 {
-      margin: 0;
-      font-size: 18px;
-      color: var(--text-main);
-    }
+    .modal-header h2 { margin: 0; font-size: 18px; color: var(--text-main); }
 
     .btn-close {
-      background: none;
-      border: none;
-      color: var(--text-sub);
-      font-size: 20px;
-      cursor: pointer;
+      background: none; border: none; color: var(--text-sub); font-size: 20px; cursor: pointer;
     }
     .btn-close:hover { color: #fff; }
 
-    .admin-form {
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-    }
-
+    .admin-form { display: flex; flex-direction: column; gap: 14px; }
     .admin-form input {
-      background-color: #181818;
-      border: 1px solid #333;
-      color: #fff;
-      padding: 12px 14px;
-      border-radius: 8px;
-      font-size: 14px;
-      outline: none;
+      background-color: #181818; border: 1px solid #333; color: #fff; padding: 12px 14px; border-radius: 8px; font-size: 14px; outline: none;
     }
     .admin-form input:focus { border-color: var(--primary-color); }
 
-    .admin-btn-group {
-      display: flex;
-      gap: 10px;
-      margin-top: 8px;
+    .btn-update { background-color: var(--primary-color); color: white; border: none; padding: 12px; border-radius: 8px; font-weight: 700; cursor: pointer; }
+    .btn-reset { background-color: #333; color: var(--danger-color); border: 1px solid var(--danger-color); padding: 12px; border-radius: 8px; font-weight: 700; cursor: pointer; }
+
+    .history-card {
+      background-color: #242424;
+      border: 1px solid #333;
+      border-radius: 10px;
+      padding: 14px;
+      margin-bottom: 12px;
     }
-
-    .admin-form button {
-      flex: 1;
-      padding: 12px;
-      border-radius: 8px;
-      font-size: 14px;
-      font-weight: 700;
-      cursor: pointer;
-      border: none;
-      transition: background-color 0.2s;
-    }
-
-    .btn-update { background-color: var(--primary-color); color: white; }
-    .btn-update:hover { background-color: #2563eb; }
-
-    .btn-reset { background-color: #333; color: var(--danger-color); border: 1px solid var(--danger-color) !important; }
-    .btn-reset:hover { background-color: var(--danger-color); color: white; }
+    .history-date { font-weight: 700; color: var(--primary-color); font-size: 14px; }
+    .history-meta { font-size: 13px; color: var(--text-sub); margin-top: 4px; }
 
     .hidden { display: none !important; }
 
@@ -344,7 +310,7 @@
 
     <div class="info-card">
       <div class="info-item">📅 <strong>Date & Time:</strong> <span id="match-time">Loading...</span></div>
-      <div class="info-item">📍 <strong>Location:</strong> <span id="match-location">Loading...</span></div>
+      <div class="info-item">📍 <strong>Location:</strong> <span id="match-location">Monta Vista High School</span></div>
     </div>
 
     <div class="vote-buttons">
@@ -372,7 +338,8 @@
     </div>
 
     <div class="footer-section">
-      <a class="admin-link" onclick="openAdminAuthModal()">⚙️ Admin Mode</a>
+      <a class="footer-link" onclick="openHistoryModal()">📜 Match History</a>
+      <a class="footer-link" onclick="openAdminAuthModal()">⚙️ Admin Mode</a>
     </div>
   </div>
 
@@ -399,13 +366,26 @@
       </div>
       <div class="admin-form">
         <label style="font-size:13px; color:var(--text-sub);">Schedule Settings</label>
-        <input type="text" id="new-match-time" placeholder="New Schedule (e.g., Sat Oct 24, 6:00 PM)">
-        <input type="text" id="new-match-loc" placeholder="New Location (e.g., Central Park Pitch #1)">
+        <input type="text" id="new-match-time" placeholder="Schedule" value="Sun, Aug 23, 2026 @ 7:30 AM">
+        <input type="text" id="new-match-loc" placeholder="Location" value="Monta Vista High School">
         <button class="btn-update" onclick="updateMatchInfo()">Update Schedule</button>
         
         <hr style="border:0; border-top:1px solid #333; margin:8px 0;">
         <label style="font-size:13px; color:var(--text-sub);">Data Management</label>
         <button class="btn-reset" onclick="resetVotes()">Reset All Votes</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Match History Modal -->
+  <div id="history-modal" class="modal-overlay hidden">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>📜 Past Match Records</h2>
+        <button class="btn-close" onclick="closeHistoryModal()">✕</button>
+      </div>
+      <div id="history-container">
+        <p style="color:var(--text-sub); text-align:center;">Loading past records...</p>
       </div>
     </div>
   </div>
@@ -497,13 +477,10 @@
       fetch(url)
         .then(res => res.json())
         .then(data => {
-          if (!data.success) {
-            console.error("Server error:", data.message);
-            return;
-          }
+          if (!data.success) return;
 
           document.getElementById("match-time").textContent = data.time || "TBD";
-          document.getElementById("match-location").textContent = data.location || "TBD";
+          document.getElementById("match-location").textContent = data.location || "Monta Vista High School";
 
           if (data.members) {
             memberMap = data.members;
@@ -547,14 +524,9 @@
         return;
       }
 
-      sendRequest({
-        action: "vote",
-        email: currentUserEmail,
-        status: status
-      });
+      sendRequest({ action: "vote", email: currentUserEmail, status: status });
     }
 
-    /* Admin Modal Logic */
     function openAdminAuthModal() {
       document.getElementById("auth-pw-input").value = "";
       document.getElementById("admin-auth-modal").classList.remove("hidden");
@@ -562,10 +534,7 @@
 
     function verifyAdminPassword() {
       const inputPw = document.getElementById("auth-pw-input").value;
-      if (!inputPw) {
-        alert("Please enter the password.");
-        return;
-      }
+      if (!inputPw) { alert("Please enter the password."); return; }
       
       authenticatedAdminPassword = inputPw;
       document.getElementById("admin-auth-modal").classList.add("hidden");
@@ -574,7 +543,6 @@
 
     function closeAdminModals() {
       document.getElementById("admin-auth-modal").classList.add("hidden");
-      document.getElementById("admin-panel-modal").classList.hidden = true;
       document.getElementById("admin-panel-modal").classList.add("hidden");
     }
 
@@ -582,19 +550,14 @@
       const newTime = document.getElementById("new-match-time").value;
       const newLoc = document.getElementById("new-match-loc").value;
 
-      if (!newTime || !newLoc) {
-        alert("Please enter both new schedule and location.");
-        return;
-      }
+      if (!newTime || !newLoc) { alert("Please enter both schedule and location."); return; }
 
       sendRequest({
         action: "updateInfo",
         password: authenticatedAdminPassword,
         time: newTime,
         location: newLoc
-      }, () => {
-        closeAdminModals();
-      });
+      }, () => closeAdminModals());
     }
 
     function resetVotes() {
@@ -602,10 +565,38 @@
         sendRequest({
           action: "resetVotes",
           password: authenticatedAdminPassword
-        }, () => {
-          closeAdminModals();
-        });
+        }, () => closeAdminModals());
       }
+    }
+
+    function openHistoryModal() {
+      document.getElementById("history-modal").classList.remove("hidden");
+      const container = document.getElementById("history-container");
+      container.innerHTML = "<p style='color:var(--text-sub); text-align:center;'>Loading...</p>";
+
+      fetch(SCRIPT_URL + "?action=getHistory&t=" + new Date().getTime())
+        .then(res => res.json())
+        .then(res => {
+          if (res.success && res.history && res.history.length > 0) {
+            container.innerHTML = "";
+            res.history.forEach(item => {
+              const card = document.createElement("div");
+              card.className = "history-card";
+              card.innerHTML = `
+                <div class="history-date">${item.matchTime || 'N/A'}</div>
+                <div class="history-meta">📍 ${item.location || 'Monta Vista High School'}</div>
+                <div class="history-meta">⚽ Attending: ${item.attendCount} | Not Attending: ${item.absentCount}</div>
+              `;
+              container.appendChild(card);
+            });
+          } else {
+            container.innerHTML = "<p style='color:var(--text-sub); text-align:center;'>No past records found.</p>";
+          }
+        });
+    }
+
+    function closeHistoryModal() {
+      document.getElementById("history-modal").classList.add("hidden");
     }
 
     function sendRequest(params, onSuccess) {
@@ -620,12 +611,8 @@
             fetchData();
             if (onSuccess) onSuccess();
           } else {
-            alert("Error: " + (res.message || "Invalid password or server error."));
+            alert("Error: " + (res.message || "Operation failed."));
           }
-        })
-        .catch(err => {
-          console.error("Connection error:", err);
-          alert("Network error. Please check your web app setup or permissions.");
         });
     }
   </script>
