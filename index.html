@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AZFC 경기 일정 및 참석 투표</title>
+  <title>AZFC Match Schedule & Attendance Vote</title>
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <style>
     :root {
@@ -57,12 +57,13 @@
     }
 
     .user-info {
-      font-size: 16px;
+      font-size: 15px;
       color: var(--text-sub);
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 10px;
+      gap: 12px;
+      flex-wrap: wrap;
     }
 
     .user-name {
@@ -82,7 +83,7 @@
     }
     .btn-logout:hover { background-color: #444; color: #fff; }
 
-    /* 경기 정보 카드 */
+    /* Match Info Card */
     .info-card {
       background-color: #262626;
       border: 1px solid #333;
@@ -93,7 +94,7 @@
 
     .info-item {
       margin: 10px 0;
-      font-size: 17px;
+      font-size: 16px;
       display: flex;
       align-items: center;
       gap: 8px;
@@ -103,10 +104,10 @@
 
     .info-item strong {
       color: var(--primary-color);
-      min-width: 50px;
+      min-width: 80px;
     }
 
-    /* 대형 투표 버튼 */
+    /* Voting Buttons */
     .vote-buttons {
       display: flex;
       gap: 16px;
@@ -155,7 +156,7 @@
       transform: translateY(-2px);
     }
 
-    /* 투표 현황 리스트 (3열) */
+    /* Roster Lists (3 Columns) */
     .results-section {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -173,15 +174,16 @@
 
     .result-box h3 {
       margin: 0 0 12px 0;
-      font-size: 15px;
+      font-size: 14px;
       font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
 
     .result-box.attend-box h3 { color: var(--success-color); }
     .result-box.absent-box h3 { color: var(--danger-color); }
     .result-box.unvoted-box h3 { color: var(--warning-color); }
 
-    /* 멤버 목록: 한 사람당 한 줄씩 나오도록 수정한 부분 */
     .member-list {
       font-size: 14px;
       color: #ccc;
@@ -190,16 +192,17 @@
       display: flex;
       flex-direction: column;
       gap: 6px;
-      padding: 0 4px;
+      padding: 0 2px;
     }
 
     .member-item {
       background-color: #1a1a1a;
-      padding: 6px 8px;
-      border-radius: 6px;
+      padding: 8px 10px;
+      border-radius: 8px;
       border: 1px solid #333;
       text-align: center;
       word-break: break-all;
+      font-weight: 500;
     }
 
     .empty-msg {
@@ -208,17 +211,19 @@
       padding: 8px 0;
     }
 
-    /* 관리자 세션 */
+    /* Admin Section */
     .admin-section {
       padding-top: 24px;
       border-top: 1px dashed var(--card-border);
     }
 
     .admin-section h3 {
-      font-size: 16px;
+      font-size: 15px;
       color: var(--text-sub);
       margin-bottom: 14px;
       text-align: left;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
 
     .admin-form {
@@ -277,57 +282,57 @@
 
   <div class="container">
     <div class="header-section">
-      <h1>⚽ AZFC 경기 일정 & 투표</h1>
+      <h1>⚽ AZFC Match Schedule & RSVP</h1>
       
       <div id="logged-out-view">
-        <p style="color: var(--text-sub); margin-bottom: 16px;">투표에 참여하시려면 구글 계정으로 로그인해 주세요.</p>
+        <p style="color: var(--text-sub); margin-bottom: 16px;">Please sign in with Google to vote.</p>
         <div id="google-login-btn" style="display: flex; justify-content: center;"></div>
       </div>
 
       <div id="logged-in-view" class="user-info hidden">
-        <span><span id="user-display-name" class="user-name"></span>님 환영합니다!</span>
-        <button class="btn-logout" onclick="logout()">로그아웃</button>
+        <span>Welcome, <span id="user-display-name" class="user-name"></span>!</span>
+        <button class="btn-logout" onclick="logout()">Sign Out</button>
       </div>
     </div>
 
     <div class="info-card">
-      <div class="info-item">📅 <strong>일시:</strong> <span id="match-time">불러오는 중...</span></div>
-      <div class="info-item">📍 <strong>장소:</strong> <span id="match-location">불러오는 중...</span></div>
+      <div class="info-item">📅 <strong>Date & Time:</strong> <span id="match-time">Loading...</span></div>
+      <div class="info-item">📍 <strong>Location:</strong> <span id="match-location">Loading...</span></div>
     </div>
 
     <div class="vote-buttons">
       <button id="btn-attend" class="btn-vote btn-attend" onclick="submitVote('참석')">
-        <span>참석</span>
+        <span>Attending</span>
       </button>
       <button id="btn-absent" class="btn-vote btn-absent" onclick="submitVote('불참')">
-        <span>불참</span>
+        <span>Not Attending</span>
       </button>
     </div>
 
     <div class="results-section">
       <div class="result-box attend-box">
-        <h3>참석 (<span id="attend-count">0</span>명)</h3>
+        <h3>Attending (<span id="attend-count">0</span>)</h3>
         <div id="attend-list" class="member-list"><div class="empty-msg">-</div></div>
       </div>
       <div class="result-box absent-box">
-        <h3>불참 (<span id="absent-count">0</span>명)</h3>
+        <h3>Not Attending (<span id="absent-count">0</span>)</h3>
         <div id="absent-list" class="member-list"><div class="empty-msg">-</div></div>
       </div>
       <div class="result-box unvoted-box">
-        <h3>미투표 (<span id="unvoted-count">0</span>명)</h3>
+        <h3>Pending (<span id="unvoted-count">0</span>)</h3>
         <div id="unvoted-list" class="member-list"><div class="empty-msg">-</div></div>
       </div>
     </div>
 
     <div class="admin-section">
-      <h3>⚙️ 관리자 메뉴</h3>
+      <h3>⚙️ Admin Controls</h3>
       <div class="admin-form">
-        <input type="password" id="admin-pw" placeholder="관리자 비밀번호 입력">
-        <input type="text" id="new-match-time" placeholder="새 경기 일시 (예: 10월 24일(토) 18:00)">
-        <input type="text" id="new-match-loc" placeholder="새 경기 장소 (예: 중앙구장)">
+        <input type="password" id="admin-pw" placeholder="Admin Password">
+        <input type="text" id="new-match-time" placeholder="New Schedule (e.g., Sat Oct 24, 6:00 PM)">
+        <input type="text" id="new-match-loc" placeholder="New Location (e.g., Central Park Pitch #1)">
         <div class="admin-btn-group">
-          <button class="btn-update" onclick="updateMatchInfo()">경기 일정 변경</button>
-          <button class="btn-reset" onclick="resetVotes()">투표 초기화</button>
+          <button class="btn-update" onclick="updateMatchInfo()">Update Schedule</button>
+          <button class="btn-reset" onclick="resetVotes()">Reset Votes</button>
         </div>
       </div>
     </div>
@@ -375,7 +380,7 @@
         updateUserHeaderName();
         fetchData();
       } catch (e) {
-        alert("로그인 처리 중 오류가 발생했습니다.");
+        alert("An error occurred during authentication.");
       }
     }
 
@@ -390,7 +395,7 @@
 
     function updateUserHeaderName() {
       if (!currentUserEmail) return;
-      const displayName = memberMap[currentUserEmail] || (currentUserEmail + " (명단 미등록)");
+      const displayName = memberMap[currentUserEmail] || (currentUserEmail + " (Unregistered)");
       document.getElementById("user-display-name").textContent = displayName;
     }
 
@@ -420,12 +425,12 @@
         .then(res => res.json())
         .then(data => {
           if (!data.success) {
-            console.error("서버 에러:", data.message);
+            console.error("Server error:", data.message);
             return;
           }
 
-          document.getElementById("match-time").textContent = data.time || "미정";
-          document.getElementById("match-location").textContent = data.location || "미정";
+          document.getElementById("match-time").textContent = data.time || "TBD";
+          document.getElementById("match-location").textContent = data.location || "TBD";
 
           if (data.members) {
             memberMap = data.members;
@@ -437,11 +442,9 @@
           const attendEmails = (data.attendeeEmails || []).map(e => e.toLowerCase().trim());
           const absenteeEmails = (data.absenteeEmails || []).map(e => e.toLowerCase().trim());
 
-          // 카운트 업데이트
           document.getElementById("attend-count").textContent = attendList.length;
           document.getElementById("absent-count").textContent = absentList.length;
 
-          // 한 줄씩 렌더링
           renderMemberList("attend-list", attendList);
           renderMemberList("absent-list", absentList);
 
@@ -462,12 +465,12 @@
             document.getElementById("btn-absent").classList.toggle("active", absenteeEmails.includes(currentUserEmail));
           }
         })
-        .catch(err => console.error("데이터 불러오기 실패:", err));
+        .catch(err => console.error("Failed to load data:", err));
     }
 
     function submitVote(status) {
       if (!currentUserEmail) {
-        alert("로그인이 필요합니다.");
+        alert("Sign in required.");
         return;
       }
 
@@ -484,7 +487,7 @@
       const newLoc = document.getElementById("new-match-loc").value;
 
       if (!pw || !newTime || !newLoc) {
-        alert("비밀번호, 일시, 장소를 모두 입력하세요.");
+        alert("Please enter the password, schedule, and location.");
         return;
       }
 
@@ -499,11 +502,11 @@
     function resetVotes() {
       const pw = document.getElementById("admin-pw").value;
       if (!pw) {
-        alert("비밀번호를 입력하세요.");
+        alert("Please enter the admin password.");
         return;
       }
 
-      if (confirm("정말로 모든 투표 데이터를 초기화하시겠습니까?")) {
+      if (confirm("Are you sure you want to reset all votes?")) {
         sendRequest({
           action: "resetVotes",
           password: pw
@@ -519,15 +522,15 @@
         .then(res => res.json())
         .then(res => {
           if (res.success) {
-            alert("처리가 완료되었습니다.");
+            alert("Updated successfully.");
             fetchData();
           } else {
-            alert("실패 원인: " + (res.message || "알 수 없는 오류"));
+            alert("Error: " + (res.message || "Unknown error occurred."));
           }
         })
         .catch(err => {
-          console.error("통신 오류:", err);
-          alert("서버와 통신할 수 없습니다. 배포 권한과 웹앱 URL을 확인하세요.");
+          console.error("Connection error:", err);
+          alert("Network error. Please check your web app setup or permissions.");
         });
     }
   </script>
