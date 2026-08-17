@@ -126,7 +126,7 @@
 </div>
 
 <script>
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxP9AX89sU0KbjsvxmxwqV5hJ1RnyGASgK2cbJ6fA04mrxcvJeWPxEZ3rkhT1c8wgSpaw/exec";
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzhcMkEcuUCp06vpCihsLek-ou7bYOUiYDArFaVjEwXS24nsjy1eGy80nW5STJl5Rs4fA/exec";
 
     let currentUserEmail = "";
     let currentUserName = "";
@@ -170,6 +170,10 @@
                         
                         document.getElementById('btn-attend').disabled = false;
                         document.getElementById('btn-absent').disabled = false;
+
+                        // 이전 투표 선택 표시 초기화
+                        document.getElementById('btn-attend').style.outline = "none";
+                        document.getElementById('btn-absent').style.outline = "none";
 
                         if (data.myVote === 'attend') {
                             document.getElementById('btn-attend').style.outline = "3px solid #fff";
