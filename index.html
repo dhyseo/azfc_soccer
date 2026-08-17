@@ -7,18 +7,19 @@
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <style>
     :root {
-      --bg-color: #121212;
-      --card-bg: #1e1e1e;
-      --card-border: #2d2d2d;
-      --text-main: #f0f0f0;
-      --text-sub: #aaaaaa;
+      --bg-color: #0f172a;
+      --card-bg: #1e293b;
+      --card-border: #334155;
+      --text-main: #f8fafc;
+      --text-sub: #94a3b8;
       --primary-color: #3b82f6;
+      --primary-hover: #2563eb;
       --success-color: #10b981;
-      --success-bg: rgba(16, 185, 129, 0.15);
+      --success-bg: rgba(16, 185, 129, 0.12);
       --danger-color: #ef4444;
-      --danger-bg: rgba(239, 68, 68, 0.15);
+      --danger-bg: rgba(239, 68, 68, 0.12);
       --warning-color: #f59e0b;
-      --warning-bg: rgba(245, 158, 11, 0.15);
+      --warning-bg: rgba(245, 158, 11, 0.12);
     }
 
     * { box-sizing: border-box; }
@@ -31,6 +32,7 @@
       padding: 24px 16px;
       display: flex;
       justify-content: center;
+      min-height: 100vh;
     }
 
     .container {
@@ -38,32 +40,33 @@
       max-width: 640px;
       background: var(--card-bg);
       border: 1px solid var(--card-border);
-      padding: 32px 24px;
+      padding: 28px 20px;
       border-radius: 20px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
       position: relative;
     }
 
     .header-section {
       text-align: center;
-      margin-bottom: 28px;
+      margin-bottom: 24px;
       padding-bottom: 20px;
       border-bottom: 1px solid var(--card-border);
     }
 
     h1 {
-      font-size: 26px;
+      font-size: 24px;
+      font-weight: 800;
       margin: 0 0 16px 0;
       letter-spacing: -0.5px;
     }
 
     .user-info {
-      font-size: 15px;
+      font-size: 14px;
       color: var(--text-sub);
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 12px;
+      gap: 10px;
       flex-wrap: wrap;
     }
 
@@ -73,28 +76,28 @@
     }
 
     .btn-logout {
-      background-color: #333;
-      color: #bbb;
-      padding: 6px 12px;
+      background-color: #334155;
+      color: #cbd5e1;
+      padding: 6px 14px;
       font-size: 13px;
-      border: 1px solid #444;
-      border-radius: 6px;
+      border: none;
+      border-radius: 8px;
       cursor: pointer;
       transition: all 0.2s;
     }
-    .btn-logout:hover { background-color: #444; color: #fff; }
+    .btn-logout:hover { background-color: #475569; color: #fff; }
 
     .info-card {
-      background-color: #262626;
-      border: 1px solid #333;
-      padding: 20px;
+      background-color: rgba(15, 23, 42, 0.6);
+      border: 1px solid var(--card-border);
+      padding: 18px 20px;
       border-radius: 14px;
-      margin-bottom: 28px;
+      margin-bottom: 24px;
     }
 
     .info-item {
-      margin: 10px 0;
-      font-size: 16px;
+      margin: 8px 0;
+      font-size: 15px;
       display: flex;
       align-items: center;
       gap: 8px;
@@ -109,70 +112,67 @@
 
     .vote-buttons {
       display: flex;
-      gap: 16px;
-      margin-bottom: 32px;
+      gap: 12px;
+      margin-bottom: 28px;
     }
 
     .btn-vote {
       flex: 1;
-      padding: 22px 16px;
-      font-size: 20px;
-      font-weight: 800;
-      border-radius: 16px;
+      padding: 18px 12px;
+      font-size: 18px;
+      font-weight: 700;
+      border-radius: 14px;
       cursor: pointer;
       border: 2px solid transparent;
-      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: all 0.2s ease;
       display: flex;
-      flex-direction: column;
       align-items: center;
-      gap: 6px;
-      background-color: #2a2a2a;
+      justify-content: center;
+      gap: 8px;
     }
 
     .btn-attend {
       color: var(--success-color);
-      border-color: rgba(16, 185, 129, 0.4);
+      border-color: rgba(16, 185, 129, 0.3);
       background-color: var(--success-bg);
     }
     .btn-attend:hover, .btn-attend.active {
       background-color: var(--success-color);
       color: #ffffff;
       border-color: var(--success-color);
-      box-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
-      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
     }
 
     .btn-absent {
       color: var(--danger-color);
-      border-color: rgba(239, 68, 68, 0.4);
+      border-color: rgba(239, 68, 68, 0.3);
       background-color: var(--danger-bg);
     }
     .btn-absent:hover, .btn-absent.active {
       background-color: var(--danger-color);
       color: #ffffff;
       border-color: var(--danger-color);
-      box-shadow: 0 0 20px rgba(239, 68, 68, 0.4);
-      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
     }
 
     .results-section {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 12px;
-      margin-bottom: 28px;
+      margin-bottom: 24px;
     }
 
     .result-box {
-      background-color: #242424;
+      background-color: rgba(15, 23, 42, 0.5);
       border: 1px solid var(--card-border);
-      padding: 16px 12px;
+      padding: 14px 10px;
       border-radius: 12px;
       text-align: center;
     }
 
     .result-box h3 {
-      margin: 0 0 12px 0;
-      font-size: 14px;
+      margin: 0 0 10px 0;
+      font-size: 13px;
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.5px;
@@ -183,9 +183,9 @@
     .result-box.unvoted-box h3 { color: var(--warning-color); }
 
     .member-list {
-      font-size: 14px;
-      color: #ccc;
-      max-height: 220px;
+      font-size: 13px;
+      color: var(--text-sub);
+      max-height: 200px;
       overflow-y: auto;
       display: flex;
       flex-direction: column;
@@ -194,47 +194,44 @@
     }
 
     .member-item {
-      background-color: #1a1a1a;
-      padding: 8px 10px;
-      border-radius: 8px;
-      border: 1px solid #333;
+      background-color: #0f172a;
+      padding: 8px;
+      border-radius: 6px;
+      border: 1px solid var(--card-border);
       text-align: center;
       word-break: break-all;
-      font-weight: 500;
+      color: var(--text-main);
     }
 
-    .empty-msg { color: #666; font-size: 13px; padding: 8px 0; }
+    .empty-msg { color: #64748b; font-size: 13px; padding: 6px 0; }
 
-    /* Comment Section Styles */
+    /* Discussion Section */
     .comments-section {
-      background-color: #242424;
+      background-color: rgba(15, 23, 42, 0.5);
       border: 1px solid var(--card-border);
       border-radius: 14px;
-      padding: 20px;
-      margin-bottom: 24px;
+      padding: 16px;
+      margin-bottom: 20px;
     }
 
     .comments-section h3 {
-      margin: 0 0 14px 0;
-      font-size: 16px;
+      margin: 0 0 12px 0;
+      font-size: 15px;
       color: var(--text-main);
-      display: flex;
-      align-items: center;
-      gap: 6px;
     }
 
     .comment-form {
       display: flex;
       gap: 8px;
-      margin-bottom: 16px;
+      margin-bottom: 14px;
     }
 
     .comment-form input {
       flex: 1;
-      background-color: #181818;
-      border: 1px solid #333;
+      background-color: #0f172a;
+      border: 1px solid var(--card-border);
       color: #fff;
-      padding: 10px 14px;
+      padding: 10px 12px;
       border-radius: 8px;
       font-size: 14px;
       outline: none;
@@ -250,31 +247,30 @@
       font-weight: 600;
       cursor: pointer;
       font-size: 14px;
-      white-space: nowrap;
     }
-    .btn-comment:hover { opacity: 0.9; }
+    .btn-comment:hover { background-color: var(--primary-hover); }
 
     .comments-list {
       display: flex;
       flex-direction: column;
-      gap: 10px;
-      max-height: 250px;
+      gap: 8px;
+      max-height: 220px;
       overflow-y: auto;
     }
 
     .comment-item {
-      background-color: #1a1a1a;
-      border: 1px solid #333;
+      background-color: #0f172a;
+      border: 1px solid var(--card-border);
       border-radius: 8px;
       padding: 10px 12px;
-      font-size: 14px;
+      font-size: 13px;
     }
 
     .comment-header {
       display: flex;
       justify-content: space-between;
       margin-bottom: 4px;
-      font-size: 12px;
+      font-size: 11px;
     }
 
     .comment-author {
@@ -282,34 +278,28 @@
       color: var(--primary-color);
     }
 
-    .comment-time {
-      color: #666;
-    }
-
-    .comment-text {
-      color: #ddd;
-      word-break: break-word;
-      line-height: 1.4;
-    }
+    .comment-time { color: #64748b; }
+    .comment-text { color: #cbd5e1; word-break: break-word; line-height: 1.4; }
 
     .footer-section {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-top: 16px;
-      padding-top: 16px;
+      margin-top: 12px;
+      padding-top: 12px;
       border-top: 1px solid var(--card-border);
     }
 
     .footer-link {
-      color: #777;
-      font-size: 12px;
+      color: var(--text-sub);
+      font-size: 13px;
       text-decoration: none;
       cursor: pointer;
       transition: color 0.2s;
     }
-    .footer-link:hover { color: var(--text-sub); }
+    .footer-link:hover { color: var(--text-main); }
 
+    /* Modals */
     .modal-overlay {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
@@ -327,10 +317,9 @@
       border: 1px solid var(--card-border);
       border-radius: 16px;
       width: 100%;
-      max-width: 480px;
-      padding: 24px;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.8);
-      position: relative;
+      max-width: 440px;
+      padding: 20px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
       max-height: 80vh;
       overflow-y: auto;
     }
@@ -339,42 +328,41 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 20px;
-      padding-bottom: 12px;
+      margin-bottom: 16px;
+      padding-bottom: 10px;
       border-bottom: 1px solid var(--card-border);
     }
 
-    .modal-header h2 { margin: 0; font-size: 18px; color: var(--text-main); }
+    .modal-header h2 { margin: 0; font-size: 16px; color: var(--text-main); }
 
     .btn-close {
-      background: none; border: none; color: var(--text-sub); font-size: 20px; cursor: pointer;
+      background: none; border: none; color: var(--text-sub); font-size: 18px; cursor: pointer;
     }
     .btn-close:hover { color: #fff; }
 
-    .admin-form { display: flex; flex-direction: column; gap: 14px; }
+    .admin-form { display: flex; flex-direction: column; gap: 12px; }
     .admin-form input {
-      background-color: #181818; border: 1px solid #333; color: #fff; padding: 12px 14px; border-radius: 8px; font-size: 14px; outline: none;
+      background-color: #0f172a; border: 1px solid var(--card-border); color: #fff; padding: 10px 12px; border-radius: 8px; font-size: 14px; outline: none;
     }
     .admin-form input:focus { border-color: var(--primary-color); }
 
-    .btn-update { background-color: var(--primary-color); color: white; border: none; padding: 12px; border-radius: 8px; font-weight: 700; cursor: pointer; }
-    .btn-reset { background-color: #333; color: var(--danger-color); border: 1px solid var(--danger-color); padding: 12px; border-radius: 8px; font-weight: 700; cursor: pointer; }
+    .btn-update { background-color: var(--primary-color); color: white; border: none; padding: 10px; border-radius: 8px; font-weight: 600; cursor: pointer; }
+    .btn-reset { background-color: transparent; color: var(--danger-color); border: 1px solid var(--danger-color); padding: 10px; border-radius: 8px; font-weight: 600; cursor: pointer; }
 
     .history-card {
-      background-color: #242424;
-      border: 1px solid #333;
-      border-radius: 10px;
-      padding: 14px;
-      margin-bottom: 12px;
+      background-color: #0f172a;
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 10px;
     }
-    .history-date { font-weight: 700; color: var(--primary-color); font-size: 14px; }
-    .history-meta { font-size: 13px; color: var(--text-sub); margin-top: 4px; }
+    .history-date { font-weight: 700; color: var(--primary-color); font-size: 13px; }
+    .history-meta { font-size: 12px; color: var(--text-sub); margin-top: 4px; }
 
     .hidden { display: none !important; }
 
     @media (max-width: 480px) {
       .results-section { grid-template-columns: 1fr; }
-      .btn-vote { padding: 18px 12px; font-size: 18px; }
     }
   </style>
 </head>
@@ -385,7 +373,7 @@
       <h1>⚽ AZFC Match Schedule & RSVP</h1>
       
       <div id="logged-out-view">
-        <p style="color: var(--text-sub); margin-bottom: 16px;">Please sign in with Google to vote and comment.</p>
+        <p style="color: var(--text-sub); margin-bottom: 16px; font-size: 14px;">Please sign in with Google to vote and comment.</p>
         <div id="google-login-btn" style="display: flex; justify-content: center;"></div>
       </div>
 
@@ -424,12 +412,11 @@
       </div>
     </div>
 
-    <!-- 댓글 영역 추가 -->
     <div class="comments-section">
       <h3>💬 Match Discussion</h3>
       <div class="comment-form">
-        <input type="text" id="comment-input" placeholder="Leave a comment (e.g., I might be 10 mins late)" onkeypress="handleCommentKeyPress(event)">
-        <button class="btn-comment" onclick="submitComment()">Post</button>
+        <input type="text" id="comment-input" placeholder="Leave a comment..." onkeypress="handleCommentKeyPress(event)">
+        <button class="btn-comment" id="btn-comment-submit" onclick="submitComment()">Post</button>
       </div>
       <div id="comments-list" class="comments-list">
         <div class="empty-msg" style="text-align: center;">No comments yet.</div>
@@ -464,13 +451,13 @@
         <button class="btn-close" onclick="closeAdminModals()">✕</button>
       </div>
       <div class="admin-form">
-        <label style="font-size:13px; color:var(--text-sub);">Schedule Settings</label>
+        <label style="font-size:12px; color:var(--text-sub);">Schedule Settings</label>
         <input type="text" id="new-match-time" placeholder="Schedule" value="Sun, Aug 23, 2026 @ 7:30 AM">
         <input type="text" id="new-match-loc" placeholder="Location" value="Monta Vista High School">
         <button class="btn-update" onclick="updateMatchInfo()">Update Schedule</button>
         
-        <hr style="border:0; border-top:1px solid #333; margin:8px 0;">
-        <label style="font-size:13px; color:var(--text-sub);">Data Management</label>
+        <hr style="border:0; border-top:1px solid var(--card-border); margin:4px 0;">
+        <label style="font-size:12px; color:var(--text-sub);">Data Management</label>
         <button class="btn-reset" onclick="resetVotes()">Reset All Votes</button>
       </div>
     </div>
@@ -656,7 +643,6 @@
             document.getElementById("btn-absent").classList.toggle("active", absenteeEmails.includes(currentUserEmail));
           }
 
-          // 댓글 로드
           renderComments(data.comments || []);
         })
         .catch(err => console.error("Failed to load data:", err));
@@ -691,12 +677,16 @@
         return;
       }
 
+      const btn = document.getElementById("btn-comment-submit");
+      btn.disabled = true;
+
       sendRequest({
         action: "addComment",
         email: currentUserEmail,
         text: text
       }, () => {
         input.value = "";
+        btn.disabled = false;
       });
     }
 
@@ -785,6 +775,9 @@
           } else {
             alert("Error: " + (res.message || "Operation failed."));
           }
+        })
+        .catch(err => {
+          alert("Request failed. Please check network connectivity.");
         });
     }
   </script>
