@@ -60,6 +60,7 @@
       align-items: center;
       justify-content: center;
       gap: 10px;
+      flex-wrap: wrap;
     }
 
     .user-name { color: var(--primary-color); font-weight: 700; }
@@ -162,7 +163,6 @@
       border: 1px solid var(--card-border);
       border-radius: 14px;
       padding: 16px;
-      margin-bottom: 20px;
     }
 
     .comment-form { display: flex; gap: 8px; margin-bottom: 14px; }
@@ -190,7 +190,7 @@
       display: flex;
       flex-direction: column;
       gap: 8px;
-      max-height: 260px;
+      max-height: 280px;
       overflow-y: auto;
     }
 
@@ -215,15 +215,16 @@
     .comment-time { color: #64748b; }
     
     .comment-actions button {
-      background: none;
+      background: #334155;
       border: none;
-      color: var(--text-sub);
+      color: #fff;
       font-size: 11px;
       cursor: pointer;
-      padding: 0 2px;
+      padding: 3px 6px;
+      border-radius: 4px;
     }
-    .comment-actions button:hover { color: #fff; }
-    .comment-actions button.btn-del:hover { color: var(--danger-color); }
+    .comment-actions button:hover { background: var(--primary-color); }
+    .comment-actions button.btn-del:hover { background: var(--danger-color); }
 
     .comment-text { color: #cbd5e1; word-break: break-word; }
 
@@ -249,6 +250,13 @@
       cursor: pointer;
     }
 
+    .debug-status {
+      font-size: 11px;
+      color: var(--warning-color);
+      margin-top: 4px;
+      display: block;
+    }
+
     .hidden { display: none !important; }
   </style>
 </head>
@@ -264,7 +272,10 @@
       </div>
 
       <div id="logged-in-view" class="user-info hidden">
-        <span>Welcome, <span id="user-display-name" class="user-name">Loading...</span>!</span>
+        <div>
+          Welcome, <span id="user-display-name" class="user-name">...</span>!
+          <span id="debug-info" class="debug-status"></span>
+        </div>
         <button class="btn-logout" onclick="logout()">Sign Out</button>
       </div>
     </div>
@@ -301,7 +312,7 @@
         <button class="btn-comment" id="btn-comment-submit" onclick="submitComment()">Post</button>
       </div>
       <div id="comments-list" class="comments-list">
-        <div class="empty-msg" style="text-align: center;">No comments yet.</div>
+        <div class="empty-msg" style="text-align: center;">Loading comments...</div>
       </div>
     </div>
   </div>
@@ -312,6 +323,7 @@
 
     let currentUserEmail = "";
     let memberMap = {};
+    let latestComments = [];
 
     window.onload = function() {
       initGoogleLogin();
@@ -345,7 +357,8 @@
         document.getElementById("logged-out-view").classList.add("hidden");
         document.getElementById("logged-in-view").classList.remove("hidden");
         
-        fetchData(); // 데이터 재요청을 통해 memberMap 수신 후 이름 표시
+        updateUserHeaderName();
+        fetchData();
       } catch (e) {
         alert("Authentication failed.");
       }
@@ -357,6 +370,7 @@
       document.getElementById("logged-in-view").classList.add("hidden");
       document.getElementById("btn-attend").classList.remove("active");
       document.getElementById("btn-absent").classList.remove("active");
+      renderComments(latestComments);
     }
 
     function parseJwt(token) {
@@ -370,8 +384,23 @@
 
     function updateUserHeaderName() {
       if (!currentUserEmail) return;
-      const displayName = memberMap[currentUserEmail] || currentUserEmail;
-      document.getElementById("user-display-name").textContent = displayName;
+
+      const matchedName = memberMap[currentUserEmail];
+      const nameElem = document.getElementById("user-display-name");
+      const debugElem = document.getElementById("debug-info");
+
+      if (matchedName) {
+        nameElem.textContent = matchedName;
+        debugElem.textContent = "";
+      } else {
+        nameElem.textContent = currentUserEmail;
+        const totalMembers = Object.keys(memberMap).length;
+        if (totalMembers === 0) {
+          debugElem.textContent = "(시트 명단 0개 읽힘 - 백엔드 확인 필요)";
+        } else {
+          debugElem.textContent = `(시트에 이메일 미등록: ${currentUserEmail})`;
+        }
+      }
     }
 
     function renderMemberList(elementId, namesArray) {
@@ -392,29 +421,34 @@
     }
 
     function renderComments(commentsArray) {
+      latestComments = commentsArray || [];
       const container = document.getElementById("comments-list");
       container.innerHTML = "";
 
-      if (!commentsArray || commentsArray.length === 0) {
+      if (!latestComments || latestComments.length === 0) {
         container.innerHTML = '<div class="empty-msg" style="text-align: center;">No comments yet.</div>';
         return;
       }
 
-      commentsArray.forEach(item => {
+      latestComments.forEach(item => {
         const card = document.createElement("div");
         card.className = "comment-item";
-        card.id = "comment-card-" + item.id;
 
         const emailClean = (item.email || "").toLowerCase().trim();
         const authorName = memberMap[emailClean] || item.email || "Anonymous";
+        
+        // 내 댓글 판별: 완벽 일치 또는 로그인된 이메일 기준
         const isMyComment = currentUserEmail && (emailClean === currentUserEmail);
 
         let actionsHtml = "";
-        if (isMyComment && item.id) {
+        // ID가 존재하거나, 로그인한 사용자의 댓글이면 버튼 무조건 생성
+        if (isMyComment) {
+          const commentId = item.id || ("legacy_" + Math.random().toString(36).substr(2, 5));
+          const safeText = escapeHtml(item.text).replace(/'/g, "\\'");
           actionsHtml = `
             <span class="comment-actions">
-              <button onclick="enableEditComment('${item.id}', '${escapeHtml(item.text)}')">Edit</button>
-              <button class="btn-del" onclick="deleteComment('${item.id}')">Delete</button>
+              <button onclick="enableEditComment('${commentId}', '${safeText}')">Edit</button>
+              <button class="btn-del" onclick="deleteComment('${commentId}')">Delete</button>
             </span>
           `;
         }
@@ -439,9 +473,9 @@
 
       textElement.innerHTML = `
         <div class="comment-edit-box">
-          <input type="text" id="edit-input-${id}" value="${escapeHtml(oldText)}">
+          <input type="text" id="edit-input-${id}" value="${oldText}">
           <button style="background:var(--primary-color); color:#fff;" onclick="saveEditComment('${id}')">Save</button>
-          <button style="background:#334155; color:#fff;" onclick="fetchData()">Cancel</button>
+          <button style="background:#334155; color:#fff;" onclick="renderComments(latestComments)">Cancel</button>
         </div>
       `;
     }
@@ -476,7 +510,7 @@
 
     function escapeHtml(text) {
       if (!text) return "";
-      return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+      return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
     }
 
     function fetchData() {
