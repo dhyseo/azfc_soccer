@@ -267,16 +267,20 @@
 
           const attendList = data.attendees || [];
           const absentList = data.absentees || [];
+          const attendEmails = data.attendeeEmails || [];
+          const absentEmails = data.absenteeEmails || [];
 
+          // 화면 현황 목록에는 A열(이름) 표시
           document.getElementById("attend-count").innerText = attendList.length;
           document.getElementById("attend-list").innerText = attendList.join(", ") || "-";
 
           document.getElementById("absent-count").innerText = absentList.length;
           document.getElementById("absent-list").innerText = absentList.join(", ") || "-";
 
+          // 본인 버튼 활성화 여부는 B열(이메일)로 판별
           if (currentUserEmail) {
-            document.getElementById("btn-attend").classList.toggle("active", attendList.includes(currentUserEmail));
-            document.getElementById("btn-absent").classList.toggle("active", absentList.includes(currentUserEmail));
+            document.getElementById("btn-attend").classList.toggle("active", attendEmails.includes(currentUserEmail));
+            document.getElementById("btn-absent").classList.toggle("active", absentEmails.includes(currentUserEmail));
           }
         })
         .catch(err => console.error("데이터 동기화 실패:", err));
