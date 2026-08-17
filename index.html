@@ -3,129 +3,176 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AZFC 축구 모임 투표</title>
-  
-  <!-- Google Identity Services SDK -->
+  <title>AZFC 경기 일정 및 참석 투표</title>
+  <!-- Google Identity Services 라이브러리 -->
   <script src="https://accounts.google.com/gsi/client" async defer></script>
-  
   <style>
     :root {
-      --bg-color: #121212;
-      --card-bg: #1e1e1e;
-      --accent-color: #00e676;
-      --text-color: #ffffff;
-      --text-sub: #b0b0b0;
-      --border-color: #333333;
-    }
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --primary-color: #0056b3;
+      --success-color: #28a745;
+      --danger-color: #dc3545;
+      --bg-color: #f8f9fa;
+      --card-bg: #ffffff;
     }
 
     body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
       background-color: var(--bg-color);
-      color: var(--text-color);
-      display: flex;
-      justify-content: center;
-      padding: 20px 12px;
-      min-height: 100vh;
+      margin: 0;
+      padding: 20px;
+      color: #333;
     }
 
     .container {
-      width: 100%;
-      max-width: 480px;
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-
-    .card {
-      background-color: var(--card-bg);
+      max-width: 600px;
+      margin: 0 auto;
+      background: var(--card-bg);
+      padding: 24px;
       border-radius: 12px;
-      padding: 20px;
-      border: 1px solid var(--border-color);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     }
 
-    h1 {
-      font-size: 1.4rem;
-      font-weight: 700;
-      color: var(--accent-color);
-      margin-bottom: 12px;
+    h1, h2, h3 {
+      text-align: center;
+      margin-top: 0;
     }
 
-    .match-info p {
-      font-size: 0.95rem;
-      color: var(--text-sub);
-      margin-bottom: 6px;
-    }
-
-    .login-box {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 12px;
-      padding: 16px 0;
+    .header-section {
+      text-align: center;
+      margin-bottom: 24px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid #eee;
     }
 
     .user-info {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 0.9rem;
-      color: var(--accent-color);
+      margin-top: 12px;
+      font-size: 14px;
+      color: #555;
     }
 
-    .vote-btns {
+    .info-card {
+      background-color: #f1f3f5;
+      padding: 16px;
+      border-radius: 8px;
+      margin-bottom: 24px;
+    }
+
+    .info-item {
+      margin: 8px 0;
+      font-size: 16px;
+    }
+
+    .info-item strong {
+      color: var(--primary-color);
+    }
+
+    .vote-buttons {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .btn {
+      flex: 1;
+      padding: 14px;
+      font-size: 16px;
+      font-weight: bold;
+      border: 2px solid transparent;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-attend {
+      background-color: #e6f4ea;
+      color: var(--success-color);
+      border-color: #ceebd6;
+    }
+
+    .btn-attend.active, .btn-attend:hover {
+      background-color: var(--success-color);
+      color: white;
+    }
+
+    .btn-absent {
+      background-color: #fce8e6;
+      color: var(--danger-color);
+      border-color: #fad2cf;
+    }
+
+    .btn-absent.active, .btn-absent:hover {
+      background-color: var(--danger-color);
+      color: white;
+    }
+
+    .btn-logout {
+      background-color: #6c757d;
+      color: white;
+      padding: 6px 12px;
+      font-size: 12px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-left: 8px;
+    }
+
+    .results-section {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      margin-top: 12px;
+      gap: 16px;
+      margin-bottom: 24px;
     }
 
-    button {
-      background-color: #2a2a2a;
-      color: var(--text-color);
-      border: 1px solid var(--border-color);
-      padding: 12px;
+    .result-box {
+      border: 1px solid #e0e0e0;
+      padding: 16px;
       border-radius: 8px;
-      font-size: 1rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background 0.2s;
+      background-color: #fafafa;
     }
 
-    button:hover {
-      background-color: #3a3a3a;
+    .result-box h3 {
+      margin-bottom: 8px;
+      font-size: 16px;
     }
 
-    button.active {
-      background-color: var(--accent-color);
-      color: #000;
-      border-color: var(--accent-color);
+    .member-list {
+      font-size: 14px;
+      color: #666;
+      word-break: break-all;
+      min-height: 40px;
     }
 
     .admin-section {
-      margin-top: 24px;
-      border-top: 1px dashed var(--border-color);
-      padding-top: 16px;
+      margin-top: 32px;
+      padding-top: 20px;
+      border-top: 2px dashed #ddd;
     }
 
-    .input-group {
+    .admin-form {
       display: flex;
       flex-direction: column;
-      gap: 8px;
-      margin-bottom: 12px;
+      gap: 10px;
     }
 
-    input {
-      background-color: #2a2a2a;
-      border: 1px solid var(--border-color);
-      color: #fff;
+    .admin-form input {
       padding: 10px;
+      border: 1px solid #ccc;
       border-radius: 6px;
+      font-size: 14px;
+    }
+
+    .admin-form button {
+      padding: 10px;
+      background-color: #343a40;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .admin-form button.btn-reset {
+      background-color: var(--danger-color);
     }
 
     .hidden {
@@ -136,53 +183,55 @@
 <body>
 
   <div class="container">
-    <!-- 경기 정보 -->
-    <div class="card">
-      <h1>AZFC 경기 투표</h1>
-      <div class="match-info">
-        <p>🗓 일시: <span id="match-time">로딩 중...</span></p>
-        <p>📍 장소: <span id="match-location">로딩 중...</span></p>
+    <div class="header-section">
+      <h1>⚽ AZFC 경기 일정 & 투표</h1>
+      
+      <!-- 로그아웃 상태일 때 노출 -->
+      <div id="logged-out-view">
+        <p>투표에 참여하시려면 Google 계정으로 로그인해 주세요.</p>
+        <div id="google-login-btn" style="display: flex; justify-content: center;"></div>
+      </div>
+
+      <!-- 로그인 상태일 때 노출 -->
+      <div id="logged-in-view" class="user-info hidden">
+        <span id="user-email-display"></span>님 환영합니다!
+        <button class="btn-logout" onclick="logout()">로그아웃</button>
       </div>
     </div>
 
-    <!-- 구글 로그인 / 투표 영역 -->
-    <div class="card" id="auth-card">
-      <div id="logged-out-view" class="login-box">
-        <p style="font-size: 0.9rem; color: var(--text-sub);">투표에 참여하려면 구글 계정으로 로그인해 주세요.</p>
-        <div id="google-login-btn"></div>
-      </div>
+    <!-- 경기 정보 표시 -->
+    <div class="info-card">
+      <div class="info-item">📅 <strong>일시:</strong> <span id="match-time">불러오는 중...</span></div>
+      <div class="info-item">📍 <strong>장소:</strong> <span id="match-location">불러오는 중...</span></div>
+    </div>
 
-      <div id="logged-in-view" class="hidden">
-        <div class="user-info">
-          <span id="user-email-display">user@example.com</span>
-          <button onclick="logout()" style="padding: 4px 8px; font-size: 0.8rem;">로그아웃</button>
-        </div>
-        
-        <div class="vote-btns">
-          <button id="btn-attend" onclick="submitVote('참석')">참석</button>
-          <button id="btn-absent" onclick="submitVote('불참')">불참</button>
-        </div>
+    <!-- 투표 버튼 (로그인 시 동작) -->
+    <div class="vote-buttons">
+      <button id="btn-attend" class="btn btn-attend" onclick="submitVote('참석')">참석</button>
+      <button id="btn-absent" class="btn btn-absent" onclick="submitVote('불참')">불참</button>
+    </div>
+
+    <!-- 투표 현황 목록 -->
+    <div class="results-section">
+      <div class="result-box">
+        <h3>참석 (<span id="attend-count">0</span>명)</h3>
+        <div id="attend-list" class="member-list">-</div>
+      </div>
+      <div class="result-box">
+        <h3>불참 (<span id="absent-count">0</span>명)</h3>
+        <div id="absent-list" class="member-list">-</div>
       </div>
     </div>
 
-    <!-- 투표 현황 -->
-    <div class="card">
-      <h2 style="font-size: 1.1rem; margin-bottom: 10px;">투표 현황</h2>
-      <div style="font-size: 0.95rem; color: var(--text-sub); line-height: 1.6;">
-        <p>🟢 참석 (<span id="attend-count">0</span>명): <span id="attend-list">-</span></p>
-        <p style="margin-top: 6px;">🔴 불참 (<span id="absent-count">0</span>명): <span id="absent-list">-</span></p>
-      </div>
-    </div>
-
-    <!-- 관리자 기능 -->
-    <div class="card admin-section">
-      <h2 style="font-size: 1rem; color: var(--text-sub); margin-bottom: 10px;">관리자 설정</h2>
-      <div class="input-group">
-        <input type="password" id="admin-pw" placeholder="관리자 비밀번호">
-        <input type="text" id="new-match-time" placeholder="새 경기 일시">
-        <input type="text" id="new-match-loc" placeholder="새 경기 장소">
-        <button onclick="updateMatchInfo()">일정 업데이트</button>
-        <button onclick="resetVotes()" style="background-color: #cf6679; color: #000;">투표 초기화</button>
+    <!-- 관리자 전용 영역 -->
+    <div class="admin-section">
+      <h3>⚙️ 관리자 메뉴</h3>
+      <div class="admin-form">
+        <input type="password" id="admin-pw" placeholder="관리자 비밀번호 입력">
+        <input type="text" id="new-match-time" placeholder="새 경기 일시 (예: 10월 24일(토) 18:00)">
+        <input type="text" id="new-match-loc" placeholder="새 경기 장소 (예: 중앙구장)">
+        <button onclick="updateMatchInfo()">경기 일정 변경</button>
+        <button class="btn-reset" onclick="resetVotes()">투표 현황 초기화</button>
       </div>
     </div>
   </div>
@@ -228,7 +277,7 @@
     function handleCredentialResponse(response) {
       try {
         const responsePayload = parseJwt(response.credential);
-        currentUserEmail = responsePayload.email;
+        currentUserEmail = (responsePayload.email || "").toLowerCase().trim();
         
         document.getElementById("user-email-display").innerText = currentUserEmail;
         document.getElementById("logged-out-view").classList.add("hidden");
@@ -270,14 +319,12 @@
           const attendEmails = data.attendeeEmails || [];
           const absentEmails = data.absenteeEmails || [];
 
-          // 화면 현황 목록에는 A열(이름) 표시
           document.getElementById("attend-count").innerText = attendList.length;
           document.getElementById("attend-list").innerText = attendList.join(", ") || "-";
 
           document.getElementById("absent-count").innerText = absentList.length;
           document.getElementById("absent-list").innerText = absentList.join(", ") || "-";
 
-          // 본인 버튼 활성화 여부는 B열(이메일)로 판별
           if (currentUserEmail) {
             document.getElementById("btn-attend").classList.toggle("active", attendEmails.includes(currentUserEmail));
             document.getElementById("btn-absent").classList.toggle("active", absentEmails.includes(currentUserEmail));
@@ -332,6 +379,7 @@
       }
     }
 
+    // CORS 및 Apps Script 호환용 전송 함수
     function sendRequest(payload) {
       fetch(SCRIPT_URL, {
         method: "POST",
@@ -349,7 +397,7 @@
       })
       .catch(err => {
         console.error("요청 오류:", err);
-        alert("서버 통신 중 오류가 발생했습니다.");
+        alert("서버와 통신 중 문제가 발생했습니다. Apps Script 배포 설정(모든 사용자 권한)을 확인하세요.");
       });
     }
   </script>
