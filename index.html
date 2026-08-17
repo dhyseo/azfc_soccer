@@ -46,8 +46,8 @@
 
     .user-info {
       margin-top: 12px;
-      font-size: 14px;
-      color: #555;
+      font-size: 16px;
+      color: #333;
     }
 
     .info-card {
@@ -186,32 +186,32 @@
     <div class="header-section">
       <h1>⚽ AZFC 경기 일정 & 투표</h1>
       
-      <!-- 로그아웃 상태일 때 노출 -->
+      <!-- 로그아웃 상태 -->
       <div id="logged-out-view">
         <p>투표에 참여하시려면 Google 계정으로 로그인해 주세요.</p>
         <div id="google-login-btn" style="display: flex; justify-content: center;"></div>
       </div>
 
-      <!-- 로그인 상태일 때 노출 -->
+      <!-- 로그인 상태 -->
       <div id="logged-in-view" class="user-info hidden">
-        <span id="user-email-display"></span>님 환영합니다!
+        <span id="user-display-name" style="font-weight: bold; color: var(--primary-color);"></span>님 환영합니다!
         <button class="btn-logout" onclick="logout()">로그아웃</button>
       </div>
     </div>
 
-    <!-- 경기 정보 표시 -->
+    <!-- 경기 정보 -->
     <div class="info-card">
       <div class="info-item">📅 <strong>일시:</strong> <span id="match-time">불러오는 중...</span></div>
       <div class="info-item">📍 <strong>장소:</strong> <span id="match-location">불러오는 중...</span></div>
     </div>
 
-    <!-- 투표 버튼 (로그인 시 동작) -->
+    <!-- 투표 버튼 -->
     <div class="vote-buttons">
       <button id="btn-attend" class="btn btn-attend" onclick="submitVote('참석')">참석</button>
       <button id="btn-absent" class="btn btn-absent" onclick="submitVote('불참')">불참</button>
     </div>
 
-    <!-- 투표 현황 목록 -->
+    <!-- 투표 결과 -->
     <div class="results-section">
       <div class="result-box">
         <h3>참석 (<span id="attend-count">0</span>명)</h3>
@@ -223,7 +223,7 @@
       </div>
     </div>
 
-    <!-- 관리자 전용 영역 -->
+    <!-- 관리자 메뉴 -->
     <div class="admin-section">
       <h3>⚙️ 관리자 메뉴</h3>
       <div class="admin-form">
@@ -243,6 +243,7 @@
     // =================================================
 
     let currentUserEmail = "";
+    let memberMap = {}; // 시트에서 읽어온 {이메일: 이름} 매핑 저장용
 
     window.onload = function() {
       initGoogleLogin();
@@ -279,10 +280,11 @@
         const responsePayload = parseJwt(response.credential);
         currentUserEmail = (responsePayload.email || "").toLowerCase().trim();
         
-        document.getElementById("user-email-display").innerText = currentUserEmail;
         document.getElementById("logged-out-view").classList.add("hidden");
         document.getElementById("logged-in-view").classList.remove("hidden");
         
+        // 이름 표시 업데이트 및 데이터 동기화
+        updateUserHeaderName();
         fetchData();
       } catch (e) {
         console.error("로그인 토큰 파싱 에러:", e);
@@ -299,6 +301,14 @@
       return JSON.parse(jsonPayload);
     }
 
+    // 시트 매핑 정보를 기반으로 화면 상단 이름 업데이트
+    function updateUserHeaderName() {
+      if (!currentUserEmail) return;
+      
+      const displayName = memberMap[currentUserEmail] || currentUserEmail;
+      document.getElementById("user-display-name").innerText = displayName;
+    }
+
     function logout() {
       currentUserEmail = "";
       document.getElementById("logged-in-view").classList.add("hidden");
@@ -313,6 +323,12 @@
         .then(data => {
           document.getElementById("match-time").innerText = data.time || "미정";
           document.getElementById("match-location").innerText = data.location || "미정";
+
+          // 멤버 이메일->이름 매핑 저장
+          if (data.members) {
+            memberMap = data.members;
+            updateUserHeaderName();
+          }
 
           const attendList = data.attendees || [];
           const absentList = data.absentees || [];
@@ -379,26 +395,23 @@
       }
     }
 
-    // CORS 및 Apps Script 호환용 전송 함수
+    // GET 쿼리 스트링 방식의 안전한 통신 함수 (CORS/302 문제 우회)
     function sendRequest(payload) {
-      fetch(SCRIPT_URL, {
-        method: "POST",
-        headers: { "Content-Type": "text/plain;charset=utf-8" },
-        body: JSON.stringify(payload)
-      })
-      .then(res => res.json())
-      .then(res => {
-        if (res.success) {
-          alert("처리되었습니다.");
-          fetchData();
-        } else {
-          alert("오류: " + (res.message || "처리에 실패했습니다."));
-        }
-      })
-      .catch(err => {
-        console.error("요청 오류:", err);
-        alert("서버와 통신 중 문제가 발생했습니다. Apps Script 배포 설정(모든 사용자 권한)을 확인하세요.");
-      });
+      const queryString = new URLSearchParams(payload).toString();
+      fetch(SCRIPT_URL + "?" + queryString)
+        .then(res => res.json())
+        .then(res => {
+          if (res.success) {
+            alert("처리가 완료되었습니다.");
+            fetchData();
+          } else {
+            alert("오류 발생: " + (res.message || "알 수 없는 에러가 발생했습니다."));
+          }
+        })
+        .catch(err => {
+          console.error("요청 오류:", err);
+          alert("서버와 통신 중 문제가 발생했습니다. 앱스크립트 배포 설정을 확인하세요.");
+        });
     }
   </script>
 </body>
