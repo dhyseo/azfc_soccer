@@ -1,255 +1,180 @@
 <!DOCTYPE html>
-<html lang="ko">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AZFC 경기 참석 투표</title>
-  <!-- Google Identity Services SDK -->
-  <script src="https://accounts.google.com/gsi/client" async defer></script>
-  <style>
-    * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    body { background-color: #f4f6f8; margin: 0; padding: 16px; color: #333; }
-    .card { background: #fff; border-radius: 12px; padding: 20px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
-    h2 { margin-top: 0; font-size: 1.2rem; color: #1a1a1a; }
-    .info-group { margin-bottom: 8px; font-size: 0.95rem; }
-    .label { font-weight: bold; color: #555; }
-    input, button { width: 100%; padding: 10px; margin-top: 6px; border-radius: 6px; border: 1px solid #ccc; font-size: 0.95rem; }
-    .btn-group { display: flex; gap: 8px; margin-top: 10px; }
-    .btn-vote { flex: 1; padding: 12px; font-weight: bold; color: #fff; border: none; border-radius: 6px; cursor: pointer; }
-    .btn-attend { background-color: #2e7d32; }
-    .btn-absent { background-color: #c62828; }
-    .list-box { font-size: 0.9rem; line-height: 1.5; background: #fafafa; padding: 10px; border-radius: 6px; }
-    .comment-item { border-bottom: 1px solid #eee; padding: 8px 0; }
-    .comment-header { display: flex; justify-content: space-between; font-size: 0.8rem; color: #777; margin-bottom: 4px; }
-    .comment-actions button { width: auto; padding: 2px 6px; font-size: 0.75rem; margin-left: 4px; display: inline-block; }
-    .user-profile { display: flex; align-items: center; justify-content: space-between; background: #e8f5e9; padding: 10px 14px; border-radius: 8px; margin-bottom: 12px; }
-    .user-profile span { font-weight: bold; color: #2e7d32; }
-    .btn-logout { width: auto; padding: 4px 10px; font-size: 0.8rem; background: #888; color: white; border: none; }
-  </style>
-</head>
-<body>
-
-  <div class="card">
-    <h2>⚽ AZFC 다음 경기 일정</h2>
-    <div class="info-group"><span class="label">일시:</span> <span id="match-time">불러오는 중...</span></div>
-    <div class="info-group"><span class="label">장소:</span> <span id="match-location">불러오는 중...</span></div>
-  </div>
-
-  <div class="card">
-    <h2>로그인 및 투표</h2>
-    <!-- 구글 로그인 전 -->
-    <div id="login-container">
-      <p style="font-size:0.9rem; color:#666;">투표 및 댓글 작성을 위해 Google 계정으로 로그인해 주세요.</p>
-      <div id="g_id_onload"
-           data-client_id="YOUR_GOOGLE_CLIENT_ID"
-           data-callback="handleCredentialResponse">
-      </div>
-      <div class="g_id_signin" data-type="standard"></div>
-    </div>
-
-    <!-- 구글 로그인 후 -->
-    <div id="user-container" style="display:none;">
-      <div class="user-profile">
-        <div><span id="user-name"></span>님 로그인됨</div>
-        <button class="btn-logout" onclick="logout()">로그아웃</button>
-      </div>
-      <div class="btn-group">
-        <button class="btn-vote btn-attend" onclick="vote('참석')">참석</button>
-        <button class="btn-vote btn-absent" onclick="vote('불참')">불참</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="card">
-    <h2>투표 현황</h2>
-    <p><strong>참석 (<span id="attend-count">0</span>명):</strong></p>
-    <div class="list-box" id="attend-list">-</div>
-    <p><strong>불참 (<span id="absent-count">0</span>명):</strong></p>
-    <div class="list-box" id="absent-list">-</div>
-    <p><strong>미투표 (<span id="unvoted-count">0</span>명):</strong></p>
-    <div class="list-box" id="unvoted-list">-</div>
-  </div>
-
-  <div class="card">
-    <h2>댓글 및 전달사항</h2>
-    <input type="text" id="comment-input" placeholder="댓글을 입력하세요...">
-    <button onclick="addComment()" style="background-color: #1976d2; color: #fff; border: none; margin-top: 8px; font-weight: bold;">댓글 등록</button>
-    <div id="comment-list" style="margin-top: 16px;"></div>
-  </div>
-
-<script>
-  const GAS_URL = "https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec"; // 본인 웹앱 URL로 교체
-
-  let currentUser = null; // { email, name }
-  let currentMembers = {};
-  let currentComments = [];
-
-  // JWT 토큰 파싱 함수
-  function parseJwt(token) {
-    var base64Url = token.split('.')[1];
-    var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-    var jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function(c) {
-        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-    }).join(''));
-    return JSON.parse(jsonPayload);
-  }
-
-  // 구글 로그인 콜백
-  function handleCredentialResponse(response) {
-    const responsePayload = parseJwt(response.credential);
-    currentUser = {
-      email: responsePayload.email.toLowerCase(),
-      name: responsePayload.name
-    };
+<html>
+  <head>
+    <base target="_top">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AZFC - Google Sign-In</title>
     
-    // 로컬 스토리지에 저장
-    localStorage.setItem('azfc_user', JSON.stringify(currentUser));
-    updateUserUI();
-    renderComments();
-  }
-
-  function updateUserUI() {
-    if (currentUser) {
-      document.getElementById('login-container').style.display = 'none';
-      document.getElementById('user-container').style.display = 'block';
-      const displayName = currentMembers[currentUser.email] || currentUser.name;
-      document.getElementById('user-name').innerText = displayName;
-    } else {
-      document.getElementById('login-container').style.display = 'block';
-      document.getElementById('user-container').style.display = 'none';
-    }
-  }
-
-  function logout() {
-    currentUser = null;
-    localStorage.removeItem('azfc_user');
-    updateUserUI();
-    renderComments();
-  }
-
-  function fetchData() {
-    fetch(`${GAS_URL}?action=getData`)
-      .then(res => res.json())
-      .then(data => {
-        if (!data.success) return;
-        
-        document.getElementById('match-time').innerText = data.time;
-        document.getElementById('match-location').innerText = data.location;
-        currentMembers = data.members;
-
-        // 저장된 유저 정보가 있으면 UI 업데이트
-        const savedUser = localStorage.getItem('azfc_user');
-        if (savedUser) {
-          currentUser = JSON.parse(savedUser);
-          updateUserUI();
-        }
-
-        // 투표 현황 렌더링
-        document.getElementById('attend-count').innerText = data.attendees.length;
-        document.getElementById('attend-list').innerText = data.attendees.join(', ') || '없음';
-        
-        document.getElementById('absent-count').innerText = data.absentees.length;
-        document.getElementById('absent-list').innerText = data.absentees.join(', ') || '없음';
-
-        const votedEmails = [...data.attendeeEmails, ...data.absenteeEmails];
-        const unvoted = [];
-        for (let email in data.members) {
-          if (!votedEmails.includes(email)) {
-            unvoted.push(data.members[email]);
-          }
-        }
-        document.getElementById('unvoted-count').innerText = unvoted.length;
-        document.getElementById('unvoted-list').innerText = unvoted.join(', ') || '없음';
-
-        // 댓글 렌더링
-        currentComments = data.comments || [];
-        renderComments();
-      });
-  }
-
-  function vote(status) {
-    if (!currentUser) return alert('구글 로그인이 필요합니다.');
+    <!-- Google Identity Services SDK -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
     
-    fetch(`${GAS_URL}?action=vote&email=${encodeURIComponent(currentUser.email)}&status=${encodeURIComponent(status)}`)
-      .then(res => res.json())
-      .then(res => {
-        if (res.success) fetchData();
-        else alert(res.message || '투표 실패');
-      });
-  }
-
-  function addComment() {
-    if (!currentUser) return alert('댓글을 입력하려면 먼저 구글 로그인을 해주세요.');
-    const text = document.getElementById('comment-input').value.trim();
-    if (!text) return alert('내용을 입력해주세요.');
-
-    fetch(`${GAS_URL}?action=addComment&email=${encodeURIComponent(currentUser.email)}&comment=${encodeURIComponent(text)}`)
-      .then(res => res.json())
-      .then(res => {
-        if (res.success) {
-          document.getElementById('comment-input').value = '';
-          fetchData();
-        } else {
-          alert(res.message);
-        }
-      });
-  }
-
-  function editComment(id, oldText) {
-    if (!currentUser) return alert('로그인이 필요합니다.');
-    
-    const newText = prompt('댓글 수정:', oldText);
-    if (!newText || newText === oldText) return;
-
-    fetch(`${GAS_URL}?action=editComment&email=${encodeURIComponent(currentUser.email)}&commentId=${id}&comment=${encodeURIComponent(newText)}`)
-      .then(res => res.json())
-      .then(res => {
-        if (res.success) fetchData();
-        else alert(res.message);
-      });
-  }
-
-  function deleteComment(id) {
-    if (!currentUser) return alert('로그인이 필요합니다.');
-    if (!confirm('정말 삭제하시겠습니까?')) return;
-
-    fetch(`${GAS_URL}?action=deleteComment&email=${encodeURIComponent(currentUser.email)}&commentId=${id}`)
-      .then(res => res.json())
-      .then(res => {
-        if (res.success) fetchData();
-        else alert(res.message);
-      });
-  }
-
-  function renderComments() {
-    const container = document.getElementById('comment-list');
-    const userEmail = currentUser ? currentUser.email.toLowerCase() : '';
-    container.innerHTML = '';
-
-    currentComments.forEach(c => {
-      const name = currentMembers[c.email] || c.email;
-      const isOwner = userEmail && (c.email.toLowerCase() === userEmail);
-
-      const item = document.createElement('div');
-      item.className = 'comment-item';
-      item.innerHTML = `
-        <div class="comment-header">
-          <strong>${name}</strong> (${c.timestamp})
-          ${isOwner ? `
-            <span class="comment-actions">
-              <button onclick="editComment('${c.id}', '${c.text.replace(/'/g, "\\'")}')">수정</button>
-              <button onclick="deleteComment('${c.id}')">삭제</button>
-            </span>
-          ` : ''}
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        margin: 0;
+        background-color: #f8f9fa;
+        color: #212529;
+      }
+      .card {
+        background: #ffffff;
+        padding: 2.5rem 2rem;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        text-align: center;
+        max-width: 400px;
+        width: 90%;
+      }
+      .card h2 {
+        margin-top: 0;
+        margin-bottom: 0.5rem;
+        font-size: 1.5rem;
+      }
+      .card p {
+        color: #6c757d;
+        font-size: 0.95rem;
+        margin-bottom: 1.5rem;
+      }
+      .btn-container {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 1rem;
+      }
+      .user-card {
+        margin-top: 1.5rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid #e9ecef;
+        display: none;
+      }
+      .avatar {
+        width: 72px;
+        height: 72px;
+        border-radius: 50%;
+        margin-bottom: 0.75rem;
+        border: 2px solid #e9ecef;
+      }
+      .user-name {
+        font-size: 1.15rem;
+        font-weight: 600;
+        margin: 0 0 0.25rem 0;
+      }
+      .user-email {
+        color: #6c757d;
+        font-size: 0.875rem;
+        margin: 0;
+      }
+      .status-msg {
+        margin-top: 1rem;
+        padding: 0.5rem;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        display: none;
+      }
+      .status-success {
+        background-color: #d1e7dd;
+        color: #0f5132;
+      }
+      .status-error {
+        background-color: #f8d7da;
+        color: #842029;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <h2>로그인</h2>
+      <p>구글 계정으로 로그인하여 시작하세요.</p>
+      
+      <!-- 구글 로그인 버튼 영역 -->
+      <div class="btn-container">
+        <div id="g_id_onload"
+          data-client_id="77918384297-tbu1ip01281v3m4rqfpj19f8thhclk68.apps.googleusercontent.com"
+          data-context="signin"
+          data-ux_mode="popup"
+          data-callback="handleCredentialResponse"
+          data-auto_prompt="false">
         </div>
-        <div>${c.text}</div>
-      `;
-      container.appendChild(item);
-    });
-  }
 
-  fetchData();
-</script>
+        <div class="g_id_signin"
+          data-type="standard"
+          data-shape="rectangular"
+          data-theme="outline"
+          data-text="signin_with"
+          data-size="large"
+          data-logo_alignment="left">
+        </div>
+      </div>
 
-</body>
+      <!-- 로그인 성공 시 프로필 표시 영역 -->
+      <div id="userCard" class="user-card">
+        <img id="userPicture" class="avatar" src="" alt="프로필 이미지">
+        <div id="userName" class="user-name"></div>
+        <div id="userEmail" class="user-email"></div>
+        <div id="statusMsg" class="status-msg"></div>
+      </div>
+    </div>
+
+    <script>
+      /**
+       * JWT ID 토큰 해독 함수
+       */
+      function parseJwt(token) {
+        const base64Url = token.split('.')[1];
+        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        const jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function(c) {
+          return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        }).join(''));
+        return JSON.parse(jsonPayload);
+      }
+
+      /**
+       * 로그인 성공 후 콜백
+       */
+      function handleCredentialResponse(response) {
+        // 1. 토큰에서 프로필 정보 추출
+        const profile = parseJwt(response.credential);
+        
+        // 2. UI 업데이트
+        document.getElementById('userName').textContent = profile.name;
+        document.getElementById('userEmail').textContent = profile.email;
+        document.getElementById('userPicture').src = profile.picture;
+        document.getElementById('userCard').style.display = 'block';
+        
+        // 로그인 버튼 숨기기
+        document.querySelector('.btn-container').style.display = 'none';
+
+        // 3. Apps Script 백엔드 함수 호출
+        if (typeof google !== 'undefined' && google.script && google.script.run) {
+          showStatus("서버와 통신 중...", "success");
+          
+          google.script.run
+            .withSuccessHandler(function(res) {
+              if (res.status === "success") {
+                showStatus(res.message, "success");
+              } else {
+                showStatus("서버 오류: " + res.message, "error");
+              }
+            })
+            .withFailureHandler(function(err) {
+              showStatus("통신 실패: " + err.message, "error");
+            })
+            .processLogin(profile.email, profile.name);
+        }
+      }
+
+      function showStatus(msg, type) {
+        const statusEl = document.getElementById('statusMsg');
+        statusEl.textContent = msg;
+        statusEl.className = 'status-msg status-' + type;
+        statusEl.style.display = 'block';
+      }
+    </script>
+  </body>
 </html>
