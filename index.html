@@ -663,6 +663,7 @@
       }
     }
 
+    // [수정] comment 키로 정교하게 전달
     function submitComment() {
       if (!currentUserEmail) {
         alert("Sign in required.");
@@ -683,7 +684,7 @@
       sendRequest({
         action: "addComment",
         email: currentUserEmail,
-        text: text
+        comment: text
       }, () => {
         input.value = "";
         btn.disabled = false;
@@ -762,11 +763,16 @@
       document.getElementById("history-modal").classList.add("hidden");
     }
 
+    // [수정] fetch 설정에 mode, redirect 옵션 강화
     function sendRequest(params, onSuccess) {
       params.t = new Date().getTime();
       const queryString = new URLSearchParams(params).toString();
       
-      fetch(SCRIPT_URL + "?" + queryString)
+      fetch(SCRIPT_URL + "?" + queryString, {
+        method: "GET",
+        mode: "cors",
+        redirect: "follow"
+      })
         .then(res => res.json())
         .then(res => {
           if (res.success) {
@@ -777,6 +783,7 @@
           }
         })
         .catch(err => {
+          console.error(err);
           alert("Request failed. Please check network connectivity.");
         });
     }
